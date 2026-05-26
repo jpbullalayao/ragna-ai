@@ -1,4 +1,4 @@
-# ragna-harness
+# ragna-ai
 
 Personal agent skills for my own workflows. Each skill is individually installable via the [skills.sh](https://skills.sh) CLI.
 
@@ -9,7 +9,7 @@ Personal agent skills for my own workflows. Each skill is individually installab
 Reviews the current branch's diff against `origin/main`. Flags functionality regressions, unnecessary React hooks, duplicated helpers/components, and stale leftover code. Use before opening a PR or when asked to "review my changes".
 
 ```bash
-npx skills add jpbullalayao/ragna-harness --skill self-code-review
+npx skills add jpbullalayao/ragna-ai --skill self-code-review
 ```
 
 ### `/submit-code-review`
@@ -17,7 +17,7 @@ npx skills add jpbullalayao/ragna-harness --skill self-code-review
 Posts the findings from `/self-code-review` as GitHub PR comments via the `gh` CLI. Inline comments are preferred (attached to the specific file and line); falls back to regular PR conversation comments. Run `/self-code-review` first, then `/submit-code-review`.
 
 ```bash
-npx skills add jpbullalayao/ragna-harness --skill submit-code-review
+npx skills add jpbullalayao/ragna-ai --skill submit-code-review
 ```
 
 ### `/submit-pull-request`
@@ -25,7 +25,7 @@ npx skills add jpbullalayao/ragna-harness --skill submit-code-review
 Creates a GitHub PR from the current branch using a fixed template (Ticket, Problem, Solution, Before, After, Test plan). Use when you want to "open a PR", "create a pull request", or "push this up as a PR".
 
 ```bash
-npx skills add jpbullalayao/ragna-harness --skill submit-pull-request
+npx skills add jpbullalayao/ragna-ai --skill submit-pull-request
 ```
 
 ### `/code-cleanup [<branch>]`
@@ -33,13 +33,13 @@ npx skills add jpbullalayao/ragna-harness --skill submit-pull-request
 Analyzes the current branch's diff against `origin/main` (or a specified branch) and auto-applies cleanup fixes across three areas: code brevity & quality, regression risks, and CI/build health. For large diffs, invokes `/simplify` first; for React files, invokes `/react-doctor` before applying fixes. Each finding is classified as `[AUTO]` (applied immediately), `[ARCH]` (architectural improvement — shown as before/after, then applied), or `[MANUAL]` (surfaced for human review, not touched). Runs type checks and build verification after each pass.
 
 ```bash
-npx skills add jpbullalayao/ragna-harness --skill code-cleanup
+npx skills add jpbullalayao/ragna-ai --skill code-cleanup
 ```
 
 ## Install all at once
 
 ```bash
-npx skills add jpbullalayao/ragna-harness
+npx skills add jpbullalayao/ragna-ai
 ```
 
 ## Requirements
