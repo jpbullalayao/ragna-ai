@@ -28,6 +28,14 @@ Creates a GitHub PR from the current branch using a fixed template (Ticket, Prob
 npx skills add jpbullalayao/ragna-harness --skill submit-pull-request
 ```
 
+### `/code-cleanup [<branch>]`
+
+Analyzes the current branch's diff against `origin/main` (or a specified branch) and auto-applies cleanup fixes across three areas: code brevity & quality, regression risks, and CI/build health. For large diffs, invokes `/simplify` first; for React files, invokes `/react-doctor` before applying fixes. Each finding is classified as `[AUTO]` (applied immediately), `[ARCH]` (architectural improvement — shown as before/after, then applied), or `[MANUAL]` (surfaced for human review, not touched). Runs type checks and build verification after each pass.
+
+```bash
+npx skills add jpbullalayao/ragna-harness --skill code-cleanup
+```
+
 ## Install all at once
 
 ```bash
