@@ -1,35 +1,30 @@
 ---
-name: code-cleanup
-description: >-
-  Analyze the current branch's diff against main (or a user-specified branch)
-  and auto-fix cleanup opportunities across three areas: code brevity & quality,
-  potential regressions, and CI/build health. Use when the user runs
-  /code-cleanup [<branch>], or asks to "clean up the code", "simplify these
-  changes", or "polish this branch". Outlines findings per area to the user
-  before applying fixes. Auto-fixes meet the bar a staff-level engineer would
-  approve — conservative, behavior-preserving, and clearly motivated. For large
-  diffs (>300 lines or >15 files), invokes /simplify first. For React files in
-  the diff, invokes /react-doctor before applying fixes.
 allowed-tools:
-  - "Bash(git fetch *)"
-  - "Bash(git log *)"
-  - "Bash(git diff *)"
-  - "Bash(git status *)"
-  - "Bash(git rev-parse *)"
-  - "Bash(git merge-base *)"
-  - "Bash(git show *)"
-  - "Bash(git branch *)"
-  - "Bash(find *)"
-  - "Bash(grep *)"
-  - "Bash(cat *)"
-  - "Bash(npm run *)"
-  - "Bash(npx *)"
-  - "Bash(yarn *)"
-  - "Bash(pnpm *)"
-  - "Read"
-  - "Edit"
+    - Bash(git fetch *)
+    - Bash(git log *)
+    - Bash(git diff *)
+    - Bash(git status *)
+    - Bash(git rev-parse *)
+    - Bash(git merge-base *)
+    - Bash(git show *)
+    - Bash(git branch *)
+    - Bash(find *)
+    - Bash(grep *)
+    - Bash(cat *)
+    - Bash(npm run *)
+    - Bash(npx *)
+    - Bash(yarn *)
+    - Bash(pnpm *)
+    - Read
+    - Edit
+description: 'Analyze the current branch''s diff against main (or a user-specified branch) and auto-fix cleanup opportunities across three areas: code brevity & quality, potential regressions, and CI/build health. Use when the user runs /code-cleanup [<branch>], or asks to "clean up the code", "simplify these changes", or "polish this branch". Outlines findings per area to the user before applying fixes. Auto-fixes meet the bar a staff-level engineer would approve — conservative, behavior-preserving, and clearly motivated. For large diffs (>300 lines or >15 files), invokes /simplify first. For React files in the diff, invokes /react-doctor before applying fixes.'
+metadata:
+    github-path: skills/code-cleanup
+    github-ref: refs/heads/main
+    github-repo: https://github.com/jpbullalayao/ragna-ai
+    github-tree-sha: 263e5a7c96e354907afbcead2a9c52c986e454b5
+name: code-cleanup
 ---
-
 # Code Cleanup
 
 Analyzes the current branch's diff and auto-applies targeted, conservative fixes across code brevity & quality, regression risks, and CI/build health. **Mutates the working tree** — all edits are applied inline using the Edit tool.

@@ -1,24 +1,14 @@
 ---
-name: submit-code-review
-description: >-
-  Post the findings from the current conversation's /self-code-review output as
-  GitHub PR comments on the current branch's pull request. Use AFTER running
-  /self-code-review, when the user types /submit-code-review or asks to "submit
-  the review", "post the comments to GitHub", or "push the review to the PR".
-  Does NOT re-analyze the diff — it reads findings already present in the
-  conversation. Optionally filters by a user-provided focus area. Prioritizes
-  inline PR review comments (attached to the specific file and line) where
-  a file:line citation exists; falls back to regular PR conversation comments
-  when no citation is available or the inline post fails. Each comment starts
-  with "_Comment from Claude Code agent · [Model]_" in italics (where [Model]
-  is the short name of the Claude model currently running, e.g. "Sonnet 4.6",
-  "Opus 4.7", "Haiku 4.5"), two blank lines, then "non-blocking" (default) or
-  "blocking" (only when the user explicitly says so), then the finding on a new
-  line. Requires `gh` CLI authenticated to GitHub.
 allowed-tools:
-  - "Bash(gh *)"
+    - Bash(gh *)
+description: Post the findings from the current conversation's /self-code-review output as GitHub PR comments on the current branch's pull request. Use AFTER running /self-code-review, when the user types /submit-code-review or asks to "submit the review", "post the comments to GitHub", or "push the review to the PR". Does NOT re-analyze the diff — it reads findings already present in the conversation. Optionally filters by a user-provided focus area. Prioritizes inline PR review comments (attached to the specific file and line) where a file:line citation exists; falls back to regular PR conversation comments when no citation is available or the inline post fails. Each comment starts with "_Comment from Claude Code agent · [Model]_" in italics (where [Model] is the short name of the Claude model currently running, e.g. "Sonnet 4.6", "Opus 4.7", "Haiku 4.5"), two blank lines, then "non-blocking" (default) or "blocking" (only when the user explicitly says so), then the finding on a new line. Requires `gh` CLI authenticated to GitHub.
+metadata:
+    github-path: skills/submit-code-review
+    github-ref: refs/heads/main
+    github-repo: https://github.com/jpbullalayao/ragna-ai
+    github-tree-sha: 54cd237e501fd1c7f6b3a15349b80507860b5c4e
+name: submit-code-review
 ---
-
 # Submit Code Review
 
 Takes the findings already produced by `/self-code-review` in the current

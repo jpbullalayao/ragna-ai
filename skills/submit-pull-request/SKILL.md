@@ -1,8 +1,12 @@
 ---
-name: submit-pull-request
 description: Open a GitHub pull request from the current branch using a fixed template (ticket, Problem, Solution, Before, After, Test plan). Use this skill whenever the user types `/submit-pull-request`, asks to "submit a PR", "open a PR", "create a pull request", "push this up as a PR", or otherwise wants a pull request created from the current branch — even if they don't explicitly mention the template. Always prefer this skill over writing an ad-hoc PR description.
+metadata:
+    github-path: skills/submit-pull-request
+    github-ref: refs/heads/main
+    github-repo: https://github.com/jpbullalayao/ragna-ai
+    github-tree-sha: 42913da822f5bd5726a239b449e8a753713ef577
+name: submit-pull-request
 ---
-
 # Submit Pull Request
 
 Create a pull request from the current branch with a consistent body template. The template is non-negotiable: every PR opened through this skill uses the same six sections in the same order so reviewers always know where to look.

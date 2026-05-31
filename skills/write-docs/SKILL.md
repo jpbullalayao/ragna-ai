@@ -1,24 +1,22 @@
 ---
-name: write-docs
-description: >-
-  Writes concise, token-efficient markdown documentation about any subject in
-  the user's query — a topic, function, module, project, or online material
-  including provided URLs. Docs are readable by both humans and agents,
-  auto-placed by project architecture, and the user's query can override
-  defaults. Use when the user invokes /write-docs, or asks to "document this",
-  "write docs for", or "write documentation about".
 allowed-tools:
-  - "Bash(grep *)"
-  - "Bash(find *)"
-  - "Bash(ls *)"
-  - "Bash(cat *)"
-  - "Read"
-  - "Write"
-  - "Edit"
-  - "WebSearch"
-  - "WebFetch"
+    - Bash(grep *)
+    - Bash(find *)
+    - Bash(ls *)
+    - Bash(cat *)
+    - Read
+    - Write
+    - Edit
+    - WebSearch
+    - WebFetch
+description: Writes concise, token-efficient markdown documentation about any subject in the user's query — a topic, function, module, project, or online material including provided URLs. Docs are readable by both humans and agents, auto-placed by project architecture, and the user's query can override defaults. Use when the user invokes /write-docs, or asks to "document this", "write docs for", or "write documentation about".
+metadata:
+    github-path: skills/write-docs
+    github-ref: refs/heads/main
+    github-repo: https://github.com/jpbullalayao/ragna-ai
+    github-tree-sha: 213f4b822d501eb50b66be5474b9061f357eb58f
+name: write-docs
 ---
-
 # Write Docs
 
 Writes a `.md` doc explaining the user's query so any agent or human reading it cold gets full context. The subject may be local project material, online material, or both.
