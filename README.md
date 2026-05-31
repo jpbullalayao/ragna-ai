@@ -52,6 +52,14 @@ Writes concise, token-efficient markdown documentation about a user-specified qu
 npx skills add jpbullalayao/ragna-ai --skill write-docs
 ```
 
+### `/post-merge-cleanup`
+
+Syncs the default branch and deletes the merged working branch after a PR merge. Checks out main, pulls latest, deletes the local branch (with confirmation for force-delete on squash/rebase merges), deletes the remote branch if still present (with confirmation), and prunes stale remote-tracking refs. Use after merging a PR when you want to "clean up my branch", "pull main and delete this branch", or "post-merge cleanup".
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill post-merge-cleanup
+```
+
 ## Install all at once
 
 ```bash
