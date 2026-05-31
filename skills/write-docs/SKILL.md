@@ -42,6 +42,7 @@ Determine what the query is asking to document:
 - Concise but complete — every detail must be relevant; no fluff.
 - Cover: what it is, why it exists, key behavior, inputs/outputs, dependencies/relationships, and gotchas.
 - Cite real sources — file paths for local subjects, URLs for online subjects.
+- State each detail once — don't repeat the same fact, definition, or explanation across sections; cross-reference instead. A brief overview line is fine, but don't re-explain it later.
 - Research before writing; never invent.
 
 ## Placement
@@ -96,4 +97,5 @@ Return the created file path and a one-line summary of what was documented.
 
 - No fluff, no time-sensitive phrasing.
 - Ground every claim in the codebase, fetched web content, or the user's input.
+- No redundant restatement — each detail appears in exactly one place.
 - Query overrides win over defaults.
