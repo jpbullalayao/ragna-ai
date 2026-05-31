@@ -44,6 +44,14 @@ Creates a ticket in your preferred issue tracker (defaults to Linear) with a con
 npx skills add jpbullalayao/ragna-ai --skill create-ticket
 ```
 
+### `/write-docs`
+
+Writes concise, token-efficient markdown documentation about a user-specified query, function, module, or project. Docs are readable by both humans and agents, auto-placed by project architecture, and the query can override defaults (verbosity, output path, format). Use when you want to "document this", "write docs for", or "write documentation about".
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill write-docs
+```
+
 ## Install all at once
 
 ```bash
