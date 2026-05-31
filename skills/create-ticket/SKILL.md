@@ -1,18 +1,22 @@
 ---
-name: create-ticket
-description: Create a well-structured ticket in the user's preferred issue tracker (defaults to Linear). Tickets include a Context section (how the current system works) and a Requirements section (what needs to be done), written for both humans and agents. Use when the user types /create-ticket or asks to "create a ticket", "file an issue", "write up a ticket", "open a Linear issue", or "log this as a ticket".
 allowed-tools:
-  - "Bash(git log *)"
-  - "Bash(git branch *)"
-  - "Bash(git status *)"
-  - "Bash(git rev-parse *)"
-  - "Bash(grep *)"
-  - "Bash(find *)"
-  - "Bash(ls *)"
-  - "Read"
-  - "AskUserQuestion"
+    - Bash(git log *)
+    - Bash(git branch *)
+    - Bash(git status *)
+    - Bash(git rev-parse *)
+    - Bash(grep *)
+    - Bash(find *)
+    - Bash(ls *)
+    - Read
+    - AskUserQuestion
+description: Create a well-structured ticket in the user's preferred issue tracker (defaults to Linear). Tickets include a Context section (how the current system works) and a Requirements section (what needs to be done), written for both humans and agents. Use when the user types /create-ticket or asks to "create a ticket", "file an issue", "write up a ticket", "open a Linear issue", or "log this as a ticket".
+metadata:
+    github-path: skills/create-ticket
+    github-ref: refs/heads/main
+    github-repo: https://github.com/jpbullalayao/ragna-ai
+    github-tree-sha: 075ab92eb42ab115f4ce08c3eb712567d11844d9
+name: create-ticket
 ---
-
 # Create Ticket
 
 Creates a ticket in the user's preferred issue tracker with a consistent two-section format readable by both humans and AI agents. **Defaults to Linear** via the `linear` skill unless the user specifies a different tracker.

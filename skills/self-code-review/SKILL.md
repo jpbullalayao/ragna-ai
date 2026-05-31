@@ -1,17 +1,21 @@
 ---
-name: self-code-review
-description: Review the current branch's diff against the latest origin/main. Flags functionality regressions, unnecessary uncommon hooks (useRef/useEffect/useMemo/useCallback), duplicated helpers or components that already exist in the codebase, and stale leftover code from iteration. Use when the user runs /self-code-review or asks for a review of their current branch, a pre-PR check, or "review my changes".
 allowed-tools:
-  - "Bash(git fetch *)"
-  - "Bash(git log *)"
-  - "Bash(git diff *)"
-  - "Bash(git status *)"
-  - "Bash(git rev-parse *)"
-  - "Bash(git merge-base *)"
-  - "Bash(git show *)"
-  - "Bash(git branch *)"
+    - Bash(git fetch *)
+    - Bash(git log *)
+    - Bash(git diff *)
+    - Bash(git status *)
+    - Bash(git rev-parse *)
+    - Bash(git merge-base *)
+    - Bash(git show *)
+    - Bash(git branch *)
+description: Review the current branch's diff against the latest origin/main. Flags functionality regressions, unnecessary uncommon hooks (useRef/useEffect/useMemo/useCallback), duplicated helpers or components that already exist in the codebase, and stale leftover code from iteration. Use when the user runs /self-code-review or asks for a review of their current branch, a pre-PR check, or "review my changes".
+metadata:
+    github-path: skills/self-code-review
+    github-ref: refs/heads/main
+    github-repo: https://github.com/jpbullalayao/ragna-ai
+    github-tree-sha: 98dda6a11449780dd251f25e359390017b06c0e0
+name: self-code-review
 ---
-
 # Code Review
 
 Reviews the current branch against the latest `origin/main`. **Read-only** — never mutates the working tree (no checkout, pull, commit, push, or stash).

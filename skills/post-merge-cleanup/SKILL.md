@@ -1,19 +1,23 @@
 ---
-name: post-merge-cleanup
-description: Sync the default branch and delete the merged working branch after a PR merge. Use when the user types `/post-merge-cleanup`, asks to "clean up after merging", "pull main and delete this branch", "post-merge cleanup", "delete my feature branch after merge", or otherwise wants to switch to main, pull latest, and remove the branch they were working on.
 allowed-tools:
-  - "Bash(git branch *)"
-  - "Bash(git status *)"
-  - "Bash(git checkout *)"
-  - "Bash(git switch *)"
-  - "Bash(git pull *)"
-  - "Bash(git fetch *)"
-  - "Bash(git push origin --delete *)"
-  - "Bash(git ls-remote *)"
-  - "Bash(git symbolic-ref *)"
-  - "Bash(gh repo view *)"
+    - Bash(git branch *)
+    - Bash(git status *)
+    - Bash(git checkout *)
+    - Bash(git switch *)
+    - Bash(git pull *)
+    - Bash(git fetch *)
+    - Bash(git push origin --delete *)
+    - Bash(git ls-remote *)
+    - Bash(git symbolic-ref *)
+    - Bash(gh repo view *)
+description: Sync the default branch and delete the merged working branch after a PR merge. Use when the user types `/post-merge-cleanup`, asks to "clean up after merging", "pull main and delete this branch", "post-merge cleanup", "delete my feature branch after merge", or otherwise wants to switch to main, pull latest, and remove the branch they were working on.
+metadata:
+    github-path: skills/post-merge-cleanup
+    github-ref: refs/heads/main
+    github-repo: https://github.com/jpbullalayao/ragna-ai
+    github-tree-sha: 32c0134b74aff885879aee757481ab26b6e1ed17
+name: post-merge-cleanup
 ---
-
 # Post-Merge Cleanup
 
 After a PR merges, sync the default branch and delete the working branch locally and on the remote.
