@@ -1,9 +1,10 @@
 ---
 name: write-docs
 description: >-
-  Writes concise, token-efficient markdown documentation about a user-specified
-  query, function, module, or project. Docs are readable by both humans and
-  agents, auto-placed by project architecture, and the user's query can override
+  Writes concise, token-efficient markdown documentation about any subject in
+  the user's query — a topic, function, module, project, or online material
+  including provided URLs. Docs are readable by both humans and agents,
+  auto-placed by project architecture, and the user's query can override
   defaults. Use when the user invokes /write-docs, or asks to "document this",
   "write docs for", or "write documentation about".
 allowed-tools:
@@ -14,11 +15,13 @@ allowed-tools:
   - "Read"
   - "Write"
   - "Edit"
+  - "WebSearch"
+  - "WebFetch"
 ---
 
 # Write Docs
 
-Writes a `.md` doc explaining the user's query so any agent or human reading it cold gets full context.
+Writes a `.md` doc explaining the user's query so any agent or human reading it cold gets full context. The subject may be local project material, online material, or both.
 
 Invocation: `/write-docs <query>` — the text after `/write-docs` is the subject and may include overrides.
 
@@ -26,12 +29,20 @@ Invocation: `/write-docs <query>` — the text after `/write-docs` is the subjec
 
 The user's query is authoritative. If it conflicts with the defaults below (e.g. asks for exhaustive detail, a specific output path, or a different format), follow the query and skip the conflicting default.
 
+## Source modes
+
+Determine what the query is asking to document:
+
+- **Local** — project code or files in the working tree (a function, module, config, etc.).
+- **Online** — a topic to research on the web, or one or more URLs provided in the query.
+- **Mixed** — the query references both local and online material; draw from both.
+
 ## Content defaults
 
 - Concise but complete — every detail must be relevant; no fluff.
 - Cover: what it is, why it exists, key behavior, inputs/outputs, dependencies/relationships, and gotchas.
-- Cite real file paths from the codebase.
-- Research the codebase before writing; never invent.
+- Cite real sources — file paths for local subjects, URLs for online subjects.
+- Research before writing; never invent.
 
 ## Placement
 
@@ -41,17 +52,23 @@ Find the natural docs home from project architecture:
 2. Sibling `README.md` or `.md` files near the subject
 3. The relevant package or module directory
 
-If none is clearly appropriate, default to the repo root or current folder. Filename: kebab-case `*.md` derived from the subject.
+If none is clearly appropriate — including purely online subjects with no related local folder — default to the repo root or current folder. Filename: kebab-case `*.md` derived from the subject.
 
 ## Workflow
 
 ### Step 1: Parse query
 
-Extract the subject and any overrides (output path, verbosity, format, scope).
+Extract the subject, source mode (local, online, or mixed), and any overrides (output path, verbosity, format, scope, URLs).
 
 ### Step 2: Gather context
 
-Use native CLI and Read only. Run in parallel where possible:
+Choose the approach based on source mode. Cap all research to a few authoritative sources.
+
+**Online (URLs provided):** Fetch each URL with `WebFetch`.
+
+**Online (topic, no URLs):** Use `WebSearch`, then `WebFetch` the most relevant results.
+
+**Local:** Use native CLI and `Read`. Run in parallel where possible:
 
 ```bash
 ls -la
@@ -60,6 +77,8 @@ grep -r "<topic keywords>" --include="*.ts" --include="*.tsx" --include="*.js" -
 ```
 
 Read key files (entry points, relevant modules, configs). Cap reads to 3–5 files.
+
+**Mixed:** Combine the online and local steps above.
 
 ### Step 3: Choose target path
 
@@ -76,6 +95,5 @@ Return the created file path and a one-line summary of what was documented.
 ## Constraints
 
 - No fluff, no time-sensitive phrasing.
-- Ground every claim in code or the user's input.
+- Ground every claim in the codebase, fetched web content, or the user's input.
 - Query overrides win over defaults.
-- Context gathering uses only native CLI (`ls`, `find`, `grep`, `cat`) and `Read`.
