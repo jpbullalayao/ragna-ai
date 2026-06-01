@@ -115,6 +115,7 @@ Scan the diff additions for:
 - **Dead code paths** — branches added in this diff that can never be reached (e.g. `if (false)`, exhausted enum/union checks)
 - **Over-extracted one-liners** — new helper functions called exactly once in the diff that add no clarity
 - **Unnecessary async/await wrappers** — `async () => await expr` where no error boundary or intermediate await is needed; → `() => expr`
+- **Stale comments / documentation** — comments, docstrings, or doc blocks touched by or adjacent to the diff that reference behavior, parameters, return values, functions, or control flow that no longer exists after this change. Also flag comments that narrate the change history (e.g. "previously…", "used to…", "changed from…", "no longer…", "now does…", "legacy", "old approach"). The fix: rewrite the comment to describe the current implementation as if it had always worked this way, or delete it if it no longer adds value. Keep a reference to prior behavior only when it is genuinely necessary (e.g. documenting a deliberate backward-compatibility shim). Classify as `[AUTO]` when the comment unambiguously describes removed/changed functionality and the correct current description (or a clean deletion) is obvious from the diff; classify as `[MANUAL]` when the comment's intent is unclear or rewriting it requires domain knowledge the diff doesn't make obvious.
 - **Any other obvious verbosity** that a simpler, equivalent expression would replace without behavior change
 - **Architectural improvements** — if a simpler or more logical structure would make the code meaningfully better or clearer, even if it requires restructuring, include it as `[ARCH]`; always show a before/after snapshot to the user before applying
 - **React-specific findings** from Step 5, annotated `[REACT]`
@@ -228,6 +229,7 @@ Output:
 - **Never touch files outside the diff.** Only edit files that appear in `git diff --name-status <BASE>..HEAD`.
 - **Verify after each pass.** Run type checks after Pass A, B, and C. A broken type check must be addressed before moving to the next pass.
 - **No style opinions.** Do not auto-fix formatting, naming conventions, or patterns that a linter already catches. Focus on substance.
+- **Comments describe the present, not the past.** Rewrite or remove any comment/documentation that references prior iterations or removed functionality. Comments should read as if the current implementation is how the code was always intended to work, unless referencing old behavior is genuinely necessary.
 - **[MANUAL] items are never silently dropped.** Every regression risk or judgment call must appear in the summary output so the user can act on it.
 - **Respect working tree state.** If `git status` shows uncommitted changes unrelated to the diff, warn the user and ask whether to proceed before making any edits.
 - **Never run destructive git commands.** No `checkout`, `reset`, `stash`, `commit`, or `push`.
