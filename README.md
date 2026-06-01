@@ -1,6 +1,6 @@
 # ragna-ai
 
-Personal agent skills for my own workflows. Each skill is individually installable via the [skills.sh](https://skills.sh) CLI.
+Personal agent skills for my developer & other personal workflows. Each skill is individually installable via the [skills.sh](https://skills.sh) CLI.
 
 ## Skills
 
