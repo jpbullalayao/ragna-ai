@@ -6,7 +6,7 @@ Personal agent skills for my developer & other personal workflows. Each skill is
 
 ### `/self-code-review`
 
-Reviews the current branch's diff against `origin/main`. Flags functionality regressions, unnecessary React hooks, duplicated helpers/components, and stale leftover code. Use before opening a PR or when asked to "review my changes".
+Reviews the current branch's diff against its base branch — the open PR's base branch when the branch has one, otherwise the repo's default branch. Flags functionality regressions, unnecessary React hooks, duplicated helpers/components, and stale leftover code. Use before opening a PR or when asked to "review my changes".
 
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill self-code-review
@@ -30,7 +30,7 @@ npx skills add jpbullalayao/ragna-ai --skill submit-pull-request
 
 ### `/code-cleanup [<branch>]`
 
-Analyzes the current branch's diff against `origin/main` (or a specified branch) and auto-applies cleanup fixes across three areas: code brevity & quality, regression risks, and CI/build health. For large diffs, invokes `/simplify` first; for React files, invokes `/react-doctor` before applying fixes. Each finding is classified as `[AUTO]` (applied immediately), `[ARCH]` (architectural improvement — shown as before/after, then applied), or `[MANUAL]` (surfaced for human review, not touched). Runs type checks and build verification after each pass.
+Analyzes the current branch's diff against its base branch — a specified branch via `/code-cleanup <branch>`, else the open PR's base branch, else the repo's default branch — and auto-applies cleanup fixes across three areas: code brevity & quality, regression risks, and CI/build health. For large diffs, invokes `/simplify` first; for React files, invokes `/react-doctor` before applying fixes. Each finding is classified as `[AUTO]` (applied immediately), `[ARCH]` (architectural improvement — shown as before/after, then applied), or `[MANUAL]` (surfaced for human review, not touched). Runs type checks and build verification after each pass.
 
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill code-cleanup
@@ -76,7 +76,9 @@ npx skills add jpbullalayao/ragna-ai
 
 ## Requirements
 
-- `gh` CLI authenticated to GitHub (`gh auth login`)
+- `gh` CLI authenticated to GitHub (`gh auth login`):
+  - Required for `/submit-code-review` and `/submit-pull-request` (post PR comments / open PRs)
+  - Optional for `/self-code-review` and `/code-cleanup` (detect the open PR's base branch — degrade gracefully to the repo's default branch if unavailable)
 - Claude Code with MCP Linear server connected:
   - Required for `/create-ticket` (used to create issues)
   - Optional for `/self-code-review` (fetches ticket context — degrades gracefully if unavailable)
