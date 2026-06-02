@@ -60,6 +60,14 @@ Syncs the default branch and deletes the merged working branch after a PR merge.
 npx skills add jpbullalayao/ragna-ai --skill post-merge-cleanup
 ```
 
+### `/staff-engineer-plan <query>`
+
+Operates alongside Plan Mode in any agent to turn a free-form query into a production-grade implementation plan — one a staff+ engineer would both author and approve in review. Adopts senior engineering philosophy (architecture, elegance, simplification, performance), adversarially stress-tests any approach you proposed and pivots to a clearly better one when warranted (while staying flexible if you insist), and adds an easy-to-follow Mermaid/ASCII diagram only when the solution is genuinely hard to follow in prose. Always plans first (enters Plan Mode where available, else writes a plan file), and produces a plan any other agent or human can execute. Use when you want to "plan this like a staff engineer" or "review my approach and plan it properly".
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill staff-engineer-plan
+```
+
 ## Install all at once
 
 ```bash
