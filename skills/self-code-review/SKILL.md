@@ -1,6 +1,6 @@
 ---
 name: self-code-review
-description: Review the current branch's diff against the latest origin/main. Flags functionality regressions, unnecessary uncommon hooks (useRef/useEffect/useMemo/useCallback), duplicated helpers or components that already exist in the codebase, and stale leftover code from iteration. Use when the user runs /self-code-review or asks for a review of their current branch, a pre-PR check, or "review my changes".
+description: Review the current branch's diff against its base branch — the open PR's base branch when one exists, otherwise the repo's default branch. Flags functionality regressions, unnecessary uncommon hooks (useRef/useEffect/useMemo/useCallback), duplicated helpers or components that already exist in the codebase, and stale leftover code from iteration. Use when the user runs /self-code-review or asks for a review of their current branch, a pre-PR check, or "review my changes".
 allowed-tools:
   - "Bash(git fetch *)"
   - "Bash(git log *)"
@@ -8,35 +8,49 @@ allowed-tools:
   - "Bash(git status *)"
   - "Bash(git rev-parse *)"
   - "Bash(git merge-base *)"
+  - "Bash(git symbolic-ref *)"
   - "Bash(git show *)"
   - "Bash(git branch *)"
+  - "Bash(gh pr view *)"
+  - "Bash(gh repo view *)"
 ---
 
 # Code Review
 
-Reviews the current branch against the latest `origin/main`. **Read-only** — never mutates the working tree (no checkout, pull, commit, push, or stash).
+Reviews the current branch against its base branch — the open PR's base branch when the branch has one, otherwise the repo's default branch. **Read-only** — never mutates the working tree (no checkout, pull, commit, push, or stash).
 
 ## Workflow
 
 ### Step 1: Establish the diff baseline
 
-Run these in parallel:
+First, identify the current branch and whether it has an open PR. Run these in parallel:
 
 ```bash
 git rev-parse --abbrev-ref HEAD
-git fetch origin main --quiet
+gh pr view --json number,baseRefName,url,state 2>/dev/null
 ```
 
 - If the current branch is `main` or `master`, stop and tell the user there is nothing to review (they need to be on a feature branch).
-- If `git fetch` fails (no remote, offline, etc.), fall back to local `main` and note the limitation in the output.
 
-Then compute the merge base:
+Now resolve the base ref to diff against — call it `BASE_REF` — in this priority order:
+
+1. **Open PR base.** If `gh pr view` returned an open PR, set `BASE_REF` to its `baseRefName` (e.g. `develop`). Surface the PR number and url in the output so the reviewer knows the baseline came from the PR config.
+2. **Repo default branch.** Otherwise (no PR, or `gh` is missing/unauthenticated/errored), resolve the repo's actual default branch — do **not** assume `main`:
+   - `gh repo view --json defaultBranchRef -q .defaultBranchRef.name`
+   - If that fails, fall back to `git symbolic-ref --short refs/remotes/origin/HEAD` and strip the leading `origin/`.
+   - If both fail, use `main` as a last resort.
+   - Note in the output which resolution path was used (resolved default vs. last-resort `main`).
+
+Then fetch the base ref and compute the merge base (substitute the resolved `BASE_REF`):
 
 ```bash
-git merge-base origin/main HEAD
+git fetch origin <BASE_REF> --quiet
+git merge-base origin/<BASE_REF> HEAD
 ```
 
-Capture the resulting SHA — call it `BASE` for the rest of the workflow.
+- If `git fetch` fails (no remote, offline, etc.), fall back to local `<BASE_REF>` and note the limitation in the output.
+
+Capture the resulting merge-base SHA — call it `BASE` for the rest of the workflow.
 
 ### Step 2: Resolve Linear ticket context
 
@@ -64,7 +78,7 @@ git diff --name-status <BASE>..HEAD
 git diff <BASE>..HEAD
 ```
 
-If the diff is empty, stop and tell the user the branch has no changes vs `origin/main`.
+If the diff is empty, stop and tell the user the branch has no changes vs the base branch (`<BASE_REF>`).
 
 **For large diffs** (> ~30 files or > ~1500 lines): don't rely on diff hunks alone. Read the full contents of the most-changed files so you can spot code that was *removed but is still referenced elsewhere*, and dispatch an Explore subagent to search for cross-file impacts (callers of removed/renamed symbols, similar utilities elsewhere in the repo).
 
