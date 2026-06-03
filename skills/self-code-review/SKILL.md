@@ -87,7 +87,7 @@ If the diff is empty, stop and tell the user the branch has no changes vs the ba
 #### a) Newly introduced bugs
 Does the *new or changed* code contain a defect — a way it produces wrong results, crashes, or misbehaves at runtime? This is distinct from **(b) Functionality regressions**: regressions are about *breaking pre-existing* behavior, while this guideline is about defects *inside the code this branch adds*. When a finding fits both, put it under whichever frames the failure most clearly and don't list it twice.
 
-Scan the additions for:
+**Reason about correctness from first principles — a bug can come from anything, not just the patterns listed below.** For each meaningful change, ask: what does this code intend to do, and is there any input, state, ordering, or environment in which it does the wrong thing? Trace the actual logic, edge cases, and data flow of the change rather than pattern-matching against a fixed checklist. The list below is a non-exhaustive set of *common* failure modes to jog your thinking — never treat it as the full scope of what counts as a bug, and do flag defects that don't resemble any of these:
 
 - Null/undefined dereferences and unchecked optional access (`obj.a.b` where `a` may be absent; non-null assertions that aren't guaranteed).
 - Inverted or wrong boolean/comparison logic (`!`/`&&`/`||` mistakes, `===` vs `==`, `<` vs `<=`, swapped operands).
@@ -99,6 +99,7 @@ Scan the additions for:
 - Resource leaks — unclosed handles/connections/streams, missing cleanup/unsubscribe, intervals/timeouts never cleared.
 - Incorrect type coercion, parsing, or serialization (`parseInt` without radix, `JSON.parse` on possibly-invalid input, number/string confusion).
 - Using a value before it's assigned, or a code path that returns `undefined` where a value is required.
+- Anything else that makes the code incorrect: wrong algorithm or formula, mishandled units/timezones/encodings, incorrect SQL/query logic, broken invariants or state machines, security holes (injection, missing authz, leaked secrets), domain-specific logic errors, etc.
 
 Flag concrete, defensible defects only: cite `file:line` and state the scenario in which it fails. When the surrounding codepath is uncertain (you can't see all callers or inputs), frame the finding as a question rather than an assertion. Don't restate nits the linter/type-checker already catches.
 
