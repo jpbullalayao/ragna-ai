@@ -1,6 +1,6 @@
 ---
 name: self-code-review
-description: Review the current branch's diff against its base branch — the open PR's base branch when one exists, otherwise the repo's default branch. Flags functionality regressions, unnecessary uncommon hooks (useRef/useEffect/useMemo/useCallback), duplicated helpers or components that already exist in the codebase, and stale leftover code from iteration. Use when the user runs /self-code-review or asks for a review of their current branch, a pre-PR check, or "review my changes".
+description: Review the current branch's diff against its base branch — the open PR's base branch when one exists, otherwise the repo's default branch. Flags functionality regressions, unnecessary uncommon hooks (useRef/useEffect/useMemo/useCallback), functionality that duplicates existing shared utils/helpers/components (named duplicates and inline reimplementations), code that drifts from established conventions/architecture/syntax in the codebase, and stale leftover code from iteration. Use when the user runs /self-code-review or asks for a review of their current branch, a pre-PR check, or "review my changes".
 allowed-tools:
   - "Bash(git fetch *)"
   - "Bash(git log *)"
@@ -82,7 +82,7 @@ If the diff is empty, stop and tell the user the branch has no changes vs the ba
 
 **For large diffs** (> ~30 files or > ~1500 lines): don't rely on diff hunks alone. Read the full contents of the most-changed files so you can spot code that was *removed but is still referenced elsewhere*, and dispatch an Explore subagent to search for cross-file impacts (callers of removed/renamed symbols, similar utilities elsewhere in the repo).
 
-### Step 4: Apply the four review guidelines
+### Step 4: Apply the five review guidelines
 
 #### a) Functionality regressions
 Did this branch accidentally remove or break something that worked before?
@@ -104,15 +104,24 @@ For each new occurrence, judge whether it's load-bearing:
 
 When flagging, suggest the simpler alternative (derived state, event handler, server component, ref-as-prop, etc.). Don't flag hooks that are clearly load-bearing — balance code quality against churn.
 
-#### c) Duplicated helpers / brand components
-For each *new* utility function, hook, or component in the diff:
+#### c) Duplicated functionality / reuse opportunities
+Catch functionality the diff adds that already exists in the project's shared layer. This covers **two** cases:
+
+**1. Named duplicates** — a *new* utility function, hook, or component whose name/shape matches something already in the repo:
 
 - Grep the repo for similar names (`<name>`, partial matches, common synonyms).
 - For components, look in shared UI packages (`packages/ui`, `packages/design-system`, `apps/*/components`, `apps/*/lib`, etc.).
 - For utilities, look in `packages/utils`, `packages/core`, `apps/*/lib`, `lib/`, `utils/`.
-- Use Glob + Grep, or dispatch an Explore subagent if the surface area is large.
 
-When you find a near-duplicate, cite the existing path and suggest importing from there instead.
+**2. Inline reimplementation** — logic written *inline* in the diff that duplicates the behavior of an existing shared util/helper/hook even though it isn't a named helper. Search by *behavior*, not just name:
+
+- Inline date/number/currency formatting that duplicates a shared formatter.
+- Hand-rolled debounce/throttle, deep-clone, group-by, sleep, retry, or similar primitives that already exist as shared utilities.
+- Ad-hoc `fetch`/HTTP wrappers, auth-header construction, or error handling that bypasses an existing shared client.
+- Re-derived constants, config, enums, or validation logic that's already centralized elsewhere.
+- Reimplemented data transforms / selectors that a shared hook or util already provides.
+
+Use Glob + Grep, or dispatch an Explore subagent if the surface area is large. When you find a duplicate (named or inline), cite the existing shared path and suggest importing/calling it instead of the new code.
 
 #### d) Stale code from iteration
 Anything left behind that shouldn't ship:
@@ -127,6 +136,19 @@ Anything left behind that shouldn't ship:
 - Half-finished function bodies, dead branches behind `if (false)`, etc.
 
 Skip nits Biome / Ultracite / ESLint already catch — focus on substance.
+
+#### e) Convention & architectural drift
+Does the new code follow the patterns already established elsewhere in the codebase, or does it invent its own?
+
+First, **infer the established convention** by looking at the diff's neighbors — sibling files in the same directory, other files in the same package, and existing files that play the same role (other components, other API routes, other hooks, other tests). Then flag where the diff diverges. Look for:
+
+- **Naming** — file names, function/variable casing, component naming that breaks from how peers are named.
+- **Placement / module structure** — new code living somewhere different from where its peers live (e.g. a util dropped into a component file when the repo has a `lib/`/`utils/` home for it).
+- **Syntax / idiom** — diverging from the repo's prevailing style: `function` declarations where the codebase uses arrow functions, default exports where it uses named exports, `.then()` chains where it uses `async/await`, class components where it uses function components, etc.
+- **Patterns** — error handling, data fetching, state management, or styling done differently from the surrounding code (e.g. raw `fetch` where peers use a shared client/hook; inline styles where peers use the design system; manual `try/catch` where peers use a shared error boundary/wrapper).
+- **Imports** — import style or path-alias usage inconsistent with the rest of the project (e.g. deep relative imports where peers use `@/...` aliases).
+
+Only flag **meaningful** drift that affects consistency or maintainability — cite the established pattern with a concrete `file:line` example so the reviewer can compare, and frame it as a question when the convention is ambiguous or there's a plausible reason for the divergence. Do **not** flag formatting/style the linter or formatter already enforces.
 
 ### Step 5: Output
 
@@ -166,6 +188,11 @@ Then list remaining file groupings in dependency order (schema → core/lib → 
 
 ### Duplication / Reuse Opportunities
 - `path/to/new-helper.ts` duplicates `existing/path/helper.ts`. Suggest: import from there.
+- `path/to/file.ts:30` — inline date formatting reimplements `packages/utils/format-date.ts`. Suggest: call the shared util.
+- (or: None spotted.)
+
+### Convention & Architecture Drift
+- `path/to/file.ts:12` — uses a default export while peers in this dir use named exports (e.g. `path/to/peer.ts:1`). Suggest: match the convention.
 - (or: None spotted.)
 
 ### Stale Code
@@ -182,5 +209,6 @@ Then list remaining file groupings in dependency order (schema → core/lib → 
 - **Be specific.** Every finding must cite a path and (where possible) a line number.
 - **Don't restate the diff.** Assume the reviewer can read it. Add value via judgment.
 - **Don't flag what the linter catches.** Focus on architecture, regressions, and reuse.
-- **Balance.** Some hooks are necessary, some duplication is intentional, some "stale" code is actually intentional scaffolding for a follow-up. When in doubt, frame the finding as a question.
+- **Balance.** Some hooks are necessary, some duplication is intentional, some "stale" code is actually intentional scaffolding for a follow-up, and some convention divergence is justified. When in doubt, frame the finding as a question.
+- **Convention drift must cite the established pattern.** Don't assert a convention exists — point to a concrete `file:line` peer that demonstrates it, so the reviewer can judge whether the divergence is warranted.
 - **Linear context is advisory, not authoritative.** If the ticket and the diff disagree, surface the disagreement as a finding rather than trusting either source blindly. Tickets get stale; PRs sometimes do more (or less) than the ticket says.
