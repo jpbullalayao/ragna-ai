@@ -104,7 +104,7 @@ Does the *new or changed* code contain a defect — a way it produces wrong resu
 Flag concrete, defensible defects only: cite `file:line` and state the scenario in which it fails. When the surrounding codepath is uncertain (you can't see all callers or inputs), frame the finding as a question rather than an assertion. Don't restate nits the linter/type-checker already catches.
 
 #### b) Functionality regressions
-Did this branch accidentally remove or break something that worked before?
+Did this branch accidentally remove or break something that worked before? Reason about what behavior existed prior to the diff and whether any change could alter it for existing callers or users — the list below is a non-exhaustive set of common regression patterns, not the full scope. Flag any regression you can justify, even if it doesn't match a listed pattern.
 
 - Removed exports, props, event handlers, or branches in `if`/`switch`.
 - Narrowed conditionals (e.g. `if (a || b)` → `if (a)`) without justification.
@@ -112,6 +112,7 @@ Did this branch accidentally remove or break something that worked before?
 - Renamed/moved files — grep for old import paths.
 - Removed cases from a discriminated union or enum without updating exhaustive switches.
 - Behavior changes in shared utilities that callers depend on.
+- Anything else that changes existing behavior: altered defaults, narrowed types, changed ordering/timing, removed validation, modified copy/output that something asserts on, etc.
 
 #### c) Unnecessary uncommon hooks
 Scan additions for `useRef`, `useEffect`, `useMemo`, `useCallback`, `useImperativeHandle`, `useLayoutEffect`.
@@ -132,7 +133,7 @@ Catch functionality the diff adds that already exists in the project's shared la
 - For components, look in shared UI packages (`packages/ui`, `packages/design-system`, `apps/*/components`, `apps/*/lib`, etc.).
 - For utilities, look in `packages/utils`, `packages/core`, `apps/*/lib`, `lib/`, `utils/`.
 
-**2. Inline reimplementation** — logic written *inline* in the diff that duplicates the behavior of an existing shared util/helper/hook even though it isn't a named helper. Search by *behavior*, not just name:
+**2. Inline reimplementation** — logic written *inline* in the diff that duplicates the behavior of an existing shared util/helper/hook even though it isn't a named helper. Search by *behavior*, not just name. The examples below are common cases, not a closed list — flag any inline logic that re-creates something the shared layer already provides:
 
 - Inline date/number/currency formatting that duplicates a shared formatter.
 - Hand-rolled debounce/throttle, deep-clone, group-by, sleep, retry, or similar primitives that already exist as shared utilities.
@@ -143,7 +144,7 @@ Catch functionality the diff adds that already exists in the project's shared la
 Use Glob + Grep, or dispatch an Explore subagent if the surface area is large. When you find a duplicate (named or inline), cite the existing shared path and suggest importing/calling it instead of the new code.
 
 #### e) Stale code from iteration
-Anything left behind that shouldn't ship:
+Anything left behind that shouldn't ship. The bullets below are the usual suspects, not an exhaustive list — flag any leftover scaffolding, dead code, or debugging residue from building this change, whatever form it takes:
 
 - `console.log`, `console.debug`, `debugger`, `alert`.
 - Commented-out code blocks.
@@ -159,7 +160,7 @@ Skip nits Biome / Ultracite / ESLint already catch — focus on substance.
 #### f) Convention & architectural drift
 Does the new code follow the patterns already established elsewhere in the codebase, or does it invent its own?
 
-First, **infer the established convention** by looking at the diff's neighbors — sibling files in the same directory, other files in the same package, and existing files that play the same role (other components, other API routes, other hooks, other tests). Then flag where the diff diverges. Look for:
+First, **infer the established convention** by looking at the diff's neighbors — sibling files in the same directory, other files in the same package, and existing files that play the same role (other components, other API routes, other hooks, other tests). Then flag where the diff diverges. The categories below are common axes of drift, not a closed set — flag any meaningful divergence from an established pattern, even one not listed here:
 
 - **Naming** — file names, function/variable casing, component naming that breaks from how peers are named.
 - **Placement / module structure** — new code living somewhere different from where its peers live (e.g. a util dropped into a component file when the repo has a `lib/`/`utils/` home for it).
