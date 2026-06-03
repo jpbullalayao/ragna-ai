@@ -50,6 +50,7 @@ Store:
 Look back through the current conversation for output from `/self-code-review`.
 That output contains findings grouped under these categories:
 
+- **Bugs Introduced**
 - **Functionality Regressions**
 - **Hook Usage**
 - **Duplication / Reuse Opportunities**
