@@ -1,6 +1,6 @@
 ---
 name: self-code-review
-description: Review the current branch's diff against its base branch — the open PR's base branch when one exists, otherwise the repo's default branch. Flags functionality regressions, unnecessary uncommon hooks (useRef/useEffect/useMemo/useCallback), functionality that duplicates existing shared utils/helpers/components (named duplicates and inline reimplementations), code that drifts from established conventions/architecture/syntax in the codebase, and stale leftover code from iteration. Use when the user runs /self-code-review or asks for a review of their current branch, a pre-PR check, or "review my changes".
+description: Review the current branch's diff against its base branch — the open PR's base branch when one exists, otherwise the repo's default branch. Flags newly introduced bugs (logic errors, null/undefined derefs, inverted conditionals, unhandled async, off-by-one), functionality regressions, unnecessary uncommon hooks (useRef/useEffect/useMemo/useCallback), functionality that duplicates existing shared utils/helpers/components (named duplicates and inline reimplementations), code that drifts from established conventions/architecture/syntax in the codebase, and stale leftover code from iteration. Use when the user runs /self-code-review or asks for a review of their current branch, a pre-PR check, or "review my changes".
 allowed-tools:
   - "Bash(git fetch *)"
   - "Bash(git log *)"
@@ -82,9 +82,27 @@ If the diff is empty, stop and tell the user the branch has no changes vs the ba
 
 **For large diffs** (> ~30 files or > ~1500 lines): don't rely on diff hunks alone. Read the full contents of the most-changed files so you can spot code that was *removed but is still referenced elsewhere*, and dispatch an Explore subagent to search for cross-file impacts (callers of removed/renamed symbols, similar utilities elsewhere in the repo).
 
-### Step 4: Apply the five review guidelines
+### Step 4: Apply the six review guidelines
 
-#### a) Functionality regressions
+#### a) Newly introduced bugs
+Does the *new or changed* code contain a defect — a way it produces wrong results, crashes, or misbehaves at runtime? This is distinct from **(b) Functionality regressions**: regressions are about *breaking pre-existing* behavior, while this guideline is about defects *inside the code this branch adds*. When a finding fits both, put it under whichever frames the failure most clearly and don't list it twice.
+
+Scan the additions for:
+
+- Null/undefined dereferences and unchecked optional access (`obj.a.b` where `a` may be absent; non-null assertions that aren't guaranteed).
+- Inverted or wrong boolean/comparison logic (`!`/`&&`/`||` mistakes, `===` vs `==`, `<` vs `<=`, swapped operands).
+- Off-by-one and boundary errors (loop bounds, slice/substring indices, empty-collection edge cases).
+- Missing `await`, floating promises, or unhandled rejections (async function called without awaiting; `forEach` with an async callback).
+- Incorrect error handling — swallowed errors, `catch` that hides failures, too-broad or mis-scoped `try`, returning on the error path without surfacing it.
+- Direct mutation of state, props, or shared/frozen objects where an immutable update is expected.
+- Race conditions and ordering assumptions (state read before it's set, concurrent writes, effects firing out of order).
+- Resource leaks — unclosed handles/connections/streams, missing cleanup/unsubscribe, intervals/timeouts never cleared.
+- Incorrect type coercion, parsing, or serialization (`parseInt` without radix, `JSON.parse` on possibly-invalid input, number/string confusion).
+- Using a value before it's assigned, or a code path that returns `undefined` where a value is required.
+
+Flag concrete, defensible defects only: cite `file:line` and state the scenario in which it fails. When the surrounding codepath is uncertain (you can't see all callers or inputs), frame the finding as a question rather than an assertion. Don't restate nits the linter/type-checker already catches.
+
+#### b) Functionality regressions
 Did this branch accidentally remove or break something that worked before?
 
 - Removed exports, props, event handlers, or branches in `if`/`switch`.
@@ -94,7 +112,7 @@ Did this branch accidentally remove or break something that worked before?
 - Removed cases from a discriminated union or enum without updating exhaustive switches.
 - Behavior changes in shared utilities that callers depend on.
 
-#### b) Unnecessary uncommon hooks
+#### c) Unnecessary uncommon hooks
 Scan additions for `useRef`, `useEffect`, `useMemo`, `useCallback`, `useImperativeHandle`, `useLayoutEffect`.
 
 For each new occurrence, judge whether it's load-bearing:
@@ -104,7 +122,7 @@ For each new occurrence, judge whether it's load-bearing:
 
 When flagging, suggest the simpler alternative (derived state, event handler, server component, ref-as-prop, etc.). Don't flag hooks that are clearly load-bearing — balance code quality against churn.
 
-#### c) Duplicated functionality / reuse opportunities
+#### d) Duplicated functionality / reuse opportunities
 Catch functionality the diff adds that already exists in the project's shared layer. This covers **two** cases:
 
 **1. Named duplicates** — a *new* utility function, hook, or component whose name/shape matches something already in the repo:
@@ -123,7 +141,7 @@ Catch functionality the diff adds that already exists in the project's shared la
 
 Use Glob + Grep, or dispatch an Explore subagent if the surface area is large. When you find a duplicate (named or inline), cite the existing shared path and suggest importing/calling it instead of the new code.
 
-#### d) Stale code from iteration
+#### e) Stale code from iteration
 Anything left behind that shouldn't ship:
 
 - `console.log`, `console.debug`, `debugger`, `alert`.
@@ -137,7 +155,7 @@ Anything left behind that shouldn't ship:
 
 Skip nits Biome / Ultracite / ESLint already catch — focus on substance.
 
-#### e) Convention & architectural drift
+#### f) Convention & architectural drift
 Does the new code follow the patterns already established elsewhere in the codebase, or does it invent its own?
 
 First, **infer the established convention** by looking at the diff's neighbors — sibling files in the same directory, other files in the same package, and existing files that play the same role (other components, other API routes, other hooks, other tests). Then flag where the diff diverges. Look for:
@@ -178,6 +196,10 @@ Then list remaining file groupings in dependency order (schema → core/lib → 
 
 ## Findings
 
+### Bugs Introduced
+- `path/to/file.ts:42` — <the defect in the new code and the scenario it fails in> | Suggest: <fix>
+- (or: None spotted.)
+
 ### Functionality Regressions
 - `path/to/file.ts:42` — <what changed> | Suggest: <fix>
 - (or: None spotted.)
@@ -200,7 +222,7 @@ Then list remaining file groupings in dependency order (schema → core/lib → 
 - (or: None spotted.)
 
 ## Other Notes
-<Optional. Brief. Things outside the four buckets that genuinely matter: missing tests for a new branch, a11y regression, type-safety gap, security concern. Skip if there's nothing.>
+<Optional. Brief. Things outside the buckets above that genuinely matter: missing tests for a new branch, a11y regression, type-safety gap, security concern. Skip if there's nothing.>
 ```
 
 ## Constraints
