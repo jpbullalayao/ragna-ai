@@ -172,7 +172,7 @@ Only flag **meaningful** drift that affects consistency or maintainability — c
 
 ### Step 5: Output
 
-Use this exact structure. Keep it concise — every finding must cite `file:line` so the reviewer can jump directly. Use "None spotted" rather than omitting a section, so the reviewer can see each guideline was considered.
+Use this exact structure. Keep it concise — every finding must cite `file:line` so the reviewer can jump directly. Use "None spotted" rather than omitting a section, so the reviewer can see each guideline was considered. When a section has no findings, output exactly `None spotted.` and nothing else — no list of what was checked, no rationale, no "no X, Y, or Z found" trailer.
 
 ```markdown
 ## Problem
@@ -232,6 +232,7 @@ Then list remaining file groupings in dependency order (schema → core/lib → 
 - **Read-only.** Never run `git checkout`, `git pull`, `git stash`, `git commit`, `git push`, or anything else that mutates the tree.
 - **Be specific.** Every finding must cite a path and (where possible) a line number.
 - **Don't restate the diff.** Assume the reviewer can read it. Add value via judgment.
+- **Empty sections stay bare.** A section with no findings is exactly `None spotted.` — never append what you checked or why nothing matched.
 - **Don't flag what the linter catches.** Focus on architecture, regressions, and reuse.
 - **Balance.** Some hooks are necessary, some duplication is intentional, some "stale" code is actually intentional scaffolding for a follow-up, and some convention divergence is justified. When in doubt, frame the finding as a question.
 - **Convention drift must cite the established pattern.** Don't assert a convention exists — point to a concrete `file:line` peer that demonstrates it, so the reviewer can judge whether the divergence is warranted.
