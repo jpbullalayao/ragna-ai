@@ -66,6 +66,13 @@ python3 scripts/recall_search.py show "<path>" --query "<query>" --context 2
 
 Use `show` without `--query` only when the session is short or the filtered output drops important context.
 
+**Reading in parallel (optional, narrow case).** Do NOT fan out subagents to scan the corpus — Step 2's single `search` call already does that in one fast pass. Only consider parallelism here, and only when **both** hold:
+
+- the relevant context spans **several** sessions (roughly 3+ top-ranked matches), and
+- each session's filtered `show` output is large enough that reading them all inline would bloat this session's context.
+
+In that case, and only if the host harness supports subagents, dispatch **one subagent per top-ranked session** (never per available session) to read its `show --query` output and return a short extract; then synthesize their extracts in Step 5. For the common case of 1–3 small filtered excerpts, just read them directly here — spawning subagents is slower and costlier than reading inline.
+
 ### Step 5: Synthesize an inline context briefing
 
 Produce a concise briefing in the current session. Use this structure:
