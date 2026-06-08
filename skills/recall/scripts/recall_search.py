@@ -216,11 +216,9 @@ def score_text(text_lower: str, terms: list[str]) -> int:
     return sum(text_lower.count(term) for term in terms)
 
 
-def read_raw_text(path: Path, max_bytes: int = 2_000_000) -> str:
+def read_raw_text(path: Path) -> str:
     try:
-        with path.open("rb") as handle:
-            data = handle.read(max_bytes)
-        return data.decode("utf-8", errors="replace")
+        return path.read_text(encoding="utf-8", errors="replace")
     except OSError:
         return ""
 
