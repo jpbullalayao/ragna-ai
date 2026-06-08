@@ -68,6 +68,14 @@ Operates alongside Plan Mode in any agent to turn a free-form query into a produ
 npx skills add jpbullalayao/ragna-ai --skill staff-engineer-plan
 ```
 
+### `/recall <query>`
+
+Recalls prior agent-session context about a topic so follow-up work can continue in the current session without hunting for the original chat. Searches local transcripts across Cursor, Claude Code, Codex, and Gemini, ranks the most relevant sessions, and synthesizes an inline context briefing with summary, key decisions, files touched, current state, and next steps. Use when you want to "recall" a topic, ask "what did we do about", or "continue where we left off".
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill recall
+```
+
 ## Install all at once
 
 ```bash
