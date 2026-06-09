@@ -68,6 +68,14 @@ Operates alongside Plan Mode in any agent to turn a free-form query into a produ
 npx skills add jpbullalayao/ragna-ai --skill staff-engineer-plan
 ```
 
+### `/root-cause <query>`
+
+Addresses a specific task or bug by tracing to and fixing the true underlying cause rather than applying a surface band-aid. Follows the causal chain upstream from the symptom site to the cause site, then reasons with itself — via an explicit band-aid vs root test — to confirm the chosen fix resolves the whole class of problem before implementing. When the real root is genuinely out of scope, it applies a clearly labeled mitigation and flags the follow-up instead of patching silently. Use when you want to "fix", "address", "solve", or "get to the bottom of" a specific task or bug.
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill root-cause
+```
+
 ### `/recall <query>`
 
 Recalls prior agent-session context about a topic so follow-up work can continue in the current session without hunting for the original chat. Searches local transcripts across Cursor, Claude Code, Codex, and Gemini, ranks the most relevant sessions, and synthesizes an inline context briefing with summary, key decisions, files touched, current state, and next steps. Use when you want to "recall" a topic, ask "what did we do about", or "continue where we left off".
