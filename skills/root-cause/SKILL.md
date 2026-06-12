@@ -1,11 +1,12 @@
 ---
 name: root-cause
 description: >-
-  Finds and fixes the underlying root cause of a task or bug rather than
-  applying a surface band-aid. Reasons with itself to confirm the chosen fix
-  addresses the problem at its root before implementing. Use when the user
-  invokes /root-cause <query>, or asks to fix, address, solve, or get to the
-  bottom of a specific task or bug.
+  Finds, fixes, and verifies the underlying root cause of a task or bug rather
+  than applying a surface band-aid. Reasons with itself to confirm the chosen
+  fix addresses the problem at its root before implementing. Use when the user
+  invokes /root-cause <query>, asks to fix or get to the bottom of a specific
+  bug, or asks to check or confirm that a fix actually resolved the root cause
+  (including during code or PR review).
 ---
 
 # Root Cause
