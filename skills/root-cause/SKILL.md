@@ -1,12 +1,6 @@
 ---
 name: root-cause
-description: >-
-  Finds, fixes, and verifies the underlying root cause of a task or bug rather
-  than applying a surface band-aid. Reasons with itself to confirm the chosen
-  fix addresses the problem at its root before implementing. Use when the user
-  invokes /root-cause <query>, asks to fix or get to the bottom of a specific
-  bug, or asks to check or confirm that a fix actually resolved the root cause
-  (including during code or PR review).
+description: Finds, fixes, and verifies the underlying root cause of a task or bug rather than applying a surface band-aid. Reasons with itself to confirm the chosen fix addresses the problem at its root before implementing. Use when the user invokes /root-cause <query>, asks to fix or get to the root cause or bottom of a specific bug, or asks to check or confirm that a fix actually resolved the root cause.
 ---
 
 # Root Cause
@@ -40,6 +34,7 @@ Before committing to a fix, interrogate the proposed approach:
 4. If the fix is at the symptom site, what would have to be true for that to be the **correct** root-level fix?
 
 **Decision:**
+
 - If the fix addresses the root → proceed to Step 4.
 - If it does not → redesign. Trace further upstream or rethink the approach. Do not implement a band-aid without explicit acknowledgment.
 
