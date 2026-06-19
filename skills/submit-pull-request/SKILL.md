@@ -1,6 +1,6 @@
 ---
 name: submit-pull-request
-description: Open a GitHub pull request from the current branch using a fixed template (ticket, Problem, Solution, Before, After, Test plan). Use this skill whenever the user types `/submit-pull-request`, asks to "submit a PR", "open a PR", "create a pull request", "push this up as a PR", or otherwise wants a pull request created from the current branch — even if they don't explicitly mention the template. Always prefer this skill over writing an ad-hoc PR description.
+description: Open a GitHub pull request from the current branch using a fixed template (ticket, Problem, Solution, Before, After, Test plan). Automatically commits any uncommitted local changes before pushing and opening the PR. Use this skill whenever the user types `/submit-pull-request`, asks to "submit a PR", "open a PR", "create a pull request", "push this up as a PR", or otherwise wants a pull request created from the current branch — even if they don't explicitly mention the template. Always prefer this skill over writing an ad-hoc PR description.
 ---
 
 # Submit Pull Request
@@ -19,15 +19,41 @@ If the user is clearly asking for a PR but is on `main` (or the repo's default b
 
 ## Workflow
 
-1. **Confirm the branch is ready.** Run in parallel:
-   - `git status` — check for uncommitted changes. If there are any, ask the user whether to commit them first or proceed without them.
-   - `git branch --show-current` — capture the branch name.
-   - `git log <base>..HEAD --oneline` — review the commits that will be in the PR. Use the repo's default branch as `<base>` (usually `main`; check with `gh repo view --json defaultBranchRef -q .defaultBranchRef.name` if unsure).
+1. **Check branch state.** Run in parallel:
+   - `git status` — note uncommitted changes and whether the branch tracks a remote.
+   - `git branch --show-current` — capture the branch name. If detached HEAD, stop (see [Edge cases](#edge-cases)).
+   - `gh repo view --json defaultBranchRef -q .defaultBranchRef.name` — resolve `<base>` (usually `main`).
+
+2. **Commit uncommitted changes automatically.** If `git status` shows unstaged, staged, or untracked work that belongs in the PR, commit it before continuing — do not ask the user first.
+
+   Run in parallel:
+   - `git diff` — staged and unstaged changes.
+   - `git log -5 --oneline` — match the repo's commit message style.
+
+   Then:
+   - Do **not** stage or commit files that likely contain secrets (`.env`, credentials, tokens). If only those files are dirty, stop and tell the user.
+   - Stage relevant changes (`git add` for modified and new files that belong in the PR).
+   - Draft a concise commit message (1–2 sentences, focus on *why*) using Conventional Commits if the repo does.
+   - Commit with a HEREDOC:
+
+     ```bash
+     git commit -m "$(cat <<'EOF'
+     <commit message>
+
+     EOF
+     )"
+     ```
+
+   - If the commit fails due to a pre-commit hook, fix the issue and create a **new** commit — never amend a failed commit.
+   - Run `git status` after committing to confirm a clean working tree.
+
+3. **Review what will be in the PR.** Run in parallel:
+   - `git log <base>..HEAD --oneline` — review the commits that will be in the PR.
    - `git diff <base>...HEAD` — read the diff so you can write a real Problem/Solution. Skim, don't dump.
 
-2. **Push the branch if needed.** If `git status` shows the branch isn't tracking a remote or is ahead of remote, push with `git push -u origin <branch>`.
+4. **Push the branch if needed.** If the branch isn't tracking a remote or is ahead of remote, push with `git push -u origin <branch>`.
 
-3. **Infer the ticket reference from the branch name.** Common patterns:
+5. **Infer the ticket reference from the branch name.** Common patterns:
    - `KOR-123-some-description` or `kor-123-...` → ticket `KOR-123`
    - `feature/KOR-123-...`, `fix/KOR-123-...` → ticket `KOR-123`
    - `<user>/KOR-123-...` (e.g. `jourdan/KOR-123-foo`) → ticket `KOR-123`
@@ -35,13 +61,13 @@ If the user is clearly asking for a PR but is on `main` (or the repo's default b
 
    If the user mentions a ticket in conversation (e.g. "this is for KOR-456"), prefer that over what's in the branch name.
 
-4. **Draft the title.** Keep under 70 characters. Use Conventional Commits style (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`) matching what the repo's recent commits use. Title should describe the change, not the ticket id.
+6. **Draft the title.** Keep under 70 characters. Use Conventional Commits style (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`) matching what the repo's recent commits use. Title should describe the change, not the ticket id.
 
-5. **Fill the template.** Use the exact structure in [The template](#the-template) below. Sections marked "leave empty" must be empty — the user will paste media in afterward.
+7. **Fill the template.** Use the exact structure in [The template](#the-template) below. Sections marked "leave empty" must be empty — the user will paste media in afterward.
 
-6. **Create the PR.** Run `gh pr create --title "<title>" --body "<body>"`. Pass the body as a plain `-m`-style string (no HEREDOC, no command substitution — those trip the permission scanner). If the body contains characters that need escaping, write it to a temp file first and use `--body-file`.
+8. **Create the PR.** Run `gh pr create --title "<title>" --body "<body>"`. Pass the body as a plain `-m`-style string (no HEREDOC, no command substitution — those trip the permission scanner). If the body contains characters that need escaping, write it to a temp file first and use `--body-file`.
 
-7. **Return the PR URL** so the user can open it and paste in the Before/After media.
+9. **Return the PR URL** so the user can open it and paste in the Before/After media.
 
 ## The template
 
@@ -91,8 +117,10 @@ Read the diff and commits before writing — these sections should reflect the a
 
 ## Edge cases
 
-- **No commits ahead of base** — stop and tell the user; nothing to PR.
+- **No commits ahead of base** — after step 2, if `git log <base>..HEAD` is still empty, stop and tell the user; nothing to PR.
+- **Uncommitted changes remain after commit** — if `git status` is not clean (e.g. only secret files or intentionally ignored work left), tell the user what was not committed before opening the PR.
 - **Detached HEAD** — stop and tell the user; can't PR a detached HEAD.
+- **Pre-commit hook failure** — fix the reported issue and create a new commit; do not skip hooks or amend a failed commit.
 - **`gh` not authenticated** — surface the `gh auth login` prompt to the user; don't try to authenticate on their behalf.
 - **PR already exists for this branch** — `gh pr create` will fail. Run `gh pr view --json url -q .url` to surface the existing PR URL instead of creating a duplicate.
 - **Stacked PRs (Graphite)** — if the repo uses `gt` and the user mentions a stack, defer to the `graphite` skill rather than calling `gh pr create` directly.
