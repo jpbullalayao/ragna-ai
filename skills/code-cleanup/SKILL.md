@@ -1,8 +1,9 @@
 ---
 name: code-cleanup
 description: >-
-  Analyze the current branch's diff against main (or a user-specified branch)
-  and auto-fix cleanup opportunities across three areas: code brevity & quality,
+  Analyze the current branch's diff against its base branch — a user-specified
+  branch if given, otherwise the open PR's base branch, otherwise the repo's
+  default branch — and auto-fix cleanup opportunities across three areas: code brevity & quality,
   potential regressions, and CI/build health. Use when the user runs
   /code-cleanup [<branch>], or asks to "clean up the code", "simplify these
   changes", or "polish this branch". Outlines findings per area to the user
@@ -17,8 +18,11 @@ allowed-tools:
   - "Bash(git status *)"
   - "Bash(git rev-parse *)"
   - "Bash(git merge-base *)"
+  - "Bash(git symbolic-ref *)"
   - "Bash(git show *)"
   - "Bash(git branch *)"
+  - "Bash(gh pr view *)"
+  - "Bash(gh repo view *)"
   - "Bash(find *)"
   - "Bash(grep *)"
   - "Bash(cat *)"
@@ -34,18 +38,22 @@ allowed-tools:
 
 Analyzes the current branch's diff and auto-applies targeted, conservative fixes across code brevity & quality, regression risks, and CI/build health. **Mutates the working tree** — all edits are applied inline using the Edit tool.
 
-Invocation: `/code-cleanup` (compares against `origin/main` by default) or `/code-cleanup <branch>` to compare against a specific branch.
+Invocation: `/code-cleanup` (compares against the open PR's base branch if the branch has one, otherwise the repo's default branch) or `/code-cleanup <branch>` to compare against a specific branch.
 
 ## Workflow
 
 ### Step 1: Parse invocation and establish baseline
 
-Check if a branch argument was provided (e.g. `/code-cleanup feature/foo`). If not, determine the default base:
-1. Try `origin/main`
-2. Fall back to `origin/master` if `main` doesn't exist
-3. Fall back to local `main`/`master` with a note if no remote is reachable
+Resolve `<base-branch>` in this priority order:
 
-Run in parallel:
+1. **Explicit argument.** If a branch argument was provided (e.g. `/code-cleanup feature/foo`), use it as `<base-branch>` and skip the rest of the resolution.
+2. **Open PR base.** Otherwise, check for an open PR on the current branch with `gh pr view --json number,baseRefName,url,state 2>/dev/null`. If one is returned, use its `baseRefName` and surface the PR number/url in the output.
+3. **Repo default branch.** Otherwise, resolve the repo's default branch — do **not** assume `main`:
+   - `gh repo view --json defaultBranchRef -q .defaultBranchRef.name`
+   - If that fails (no `gh`, unauthenticated, or errored), fall back to `git symbolic-ref --short refs/remotes/origin/HEAD` and strip the leading `origin/`.
+   - If both fail, use `main` as a last resort and note it in the output.
+
+Run in parallel (substitute the resolved `<base-branch>`):
 
 ```bash
 git rev-parse --abbrev-ref HEAD
@@ -53,7 +61,8 @@ git fetch origin <base-branch> --quiet
 git status --short
 ```
 
-- If currently on `main` or `master`, stop and tell the user to switch to a feature branch.
+- If `git fetch` fails (no remote, offline, etc.), fall back to the local `<base-branch>` and note the limitation.
+- If the current branch is the resolved `<base-branch>` (i.e. you're sitting on the base itself with nothing to compare), stop and tell the user to switch to a feature branch.
 - If `git status` shows uncommitted changes unrelated to the diff (i.e., files not in the branch diff), warn the user and ask whether to proceed.
 
 Then compute the merge base:
@@ -115,6 +124,7 @@ Scan the diff additions for:
 - **Dead code paths** — branches added in this diff that can never be reached (e.g. `if (false)`, exhausted enum/union checks)
 - **Over-extracted one-liners** — new helper functions called exactly once in the diff that add no clarity
 - **Unnecessary async/await wrappers** — `async () => await expr` where no error boundary or intermediate await is needed; → `() => expr`
+- **Stale comments / documentation** — comments, docstrings, or doc blocks touched by or adjacent to the diff that reference behavior, parameters, return values, functions, or control flow that no longer exists after this change. Also flag comments that narrate the change history (e.g. "previously…", "used to…", "changed from…", "no longer…", "now does…", "legacy", "old approach"). The fix: rewrite the comment to describe the current implementation as if it had always worked this way, or delete it if it no longer adds value. Keep a reference to prior behavior only when it is genuinely necessary (e.g. documenting a deliberate backward-compatibility shim). Classify as `[AUTO]` when the comment unambiguously describes removed/changed functionality and the correct current description (or a clean deletion) is obvious from the diff; classify as `[MANUAL]` when the comment's intent is unclear or rewriting it requires domain knowledge the diff doesn't make obvious.
 - **Any other obvious verbosity** that a simpler, equivalent expression would replace without behavior change
 - **Architectural improvements** — if a simpler or more logical structure would make the code meaningfully better or clearer, even if it requires restructuring, include it as `[ARCH]`; always show a before/after snapshot to the user before applying
 - **React-specific findings** from Step 5, annotated `[REACT]`
@@ -228,6 +238,7 @@ Output:
 - **Never touch files outside the diff.** Only edit files that appear in `git diff --name-status <BASE>..HEAD`.
 - **Verify after each pass.** Run type checks after Pass A, B, and C. A broken type check must be addressed before moving to the next pass.
 - **No style opinions.** Do not auto-fix formatting, naming conventions, or patterns that a linter already catches. Focus on substance.
+- **Comments describe the present, not the past.** Rewrite or remove any comment/documentation that references prior iterations or removed functionality. Comments should read as if the current implementation is how the code was always intended to work, unless referencing old behavior is genuinely necessary.
 - **[MANUAL] items are never silently dropped.** Every regression risk or judgment call must appear in the summary output so the user can act on it.
 - **Respect working tree state.** If `git status` shows uncommitted changes unrelated to the diff, warn the user and ask whether to proceed before making any edits.
 - **Never run destructive git commands.** No `checkout`, `reset`, `stash`, `commit`, or `push`.
