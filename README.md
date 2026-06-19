@@ -60,6 +60,14 @@ Syncs the default branch and deletes the merged working branch after a PR merge.
 npx skills add jpbullalayao/ragna-ai --skill post-merge-cleanup
 ```
 
+### `/npm-increment [<version>]`
+
+Analyzes changes since the last package version, recommends a semver bump (patch/minor/major), and runs `npm version` after user confirmation. Supports explicit target versions (e.g. `/npm-increment 2.0.0`) and re-prompts when you decline the recommendation (different bump, custom version, or cancel). Use when you want to "bump the version", "increment package version", or "release a new version".
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill npm-increment
+```
+
 ## Install all at once
 
 ```bash
