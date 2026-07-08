@@ -20,6 +20,8 @@ Posts the findings from `/self-code-review` as GitHub PR comments via the `gh` C
 npx skills add jpbullalayao/ragna-ai --skill submit-code-review
 ```
 
+
+
 ### `/submit-pull-request`
 
 Creates a GitHub PR from the current branch using a fixed template (Ticket, Problem, Solution, Before, After, Test plan). Use when you want to "open a PR", "create a pull request", or "push this up as a PR".
@@ -27,6 +29,8 @@ Creates a GitHub PR from the current branch using a fixed template (Ticket, Prob
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill submit-pull-request
 ```
+
+
 
 ### `/code-cleanup [<branch>]`
 
@@ -36,6 +40,8 @@ Analyzes the current branch's diff against its base branch — a specified branc
 npx skills add jpbullalayao/ragna-ai --skill code-cleanup
 ```
 
+
+
 ### `/create-ticket`
 
 Creates a ticket in your preferred issue tracker (defaults to Linear) with a consistent two-section format designed to be clear to both humans and AI agents. The **Context** section explains how the current system works; the **Requirements** section lists actionable acceptance criteria. Explores the codebase to ground the Context in real implementation details. Use when you want to "create a ticket", "file an issue", "write up a ticket", or "open a Linear issue".
@@ -43,6 +49,8 @@ Creates a ticket in your preferred issue tracker (defaults to Linear) with a con
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill create-ticket
 ```
+
+
 
 ### `/write-docs`
 
@@ -52,6 +60,8 @@ Writes concise, token-efficient markdown documentation about a user-specified qu
 npx skills add jpbullalayao/ragna-ai --skill write-docs
 ```
 
+
+
 ### `/post-merge-cleanup`
 
 Syncs the default branch and deletes the merged working branch after a PR merge. Checks out main, pulls latest, deletes the local branch (with confirmation for force-delete on squash/rebase merges), deletes the remote branch if still present (with confirmation), and prunes stale remote-tracking refs. Use after merging a PR when you want to "clean up my branch", "pull main and delete this branch", or "post-merge cleanup".
@@ -59,6 +69,8 @@ Syncs the default branch and deletes the merged working branch after a PR merge.
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill post-merge-cleanup
 ```
+
+
 
 ### `/pull-latest-default-branch`
 
@@ -68,6 +80,8 @@ Fast-forwards the local default branch (main, master, etc.) to match the remote 
 npx skills add jpbullalayao/ragna-ai --skill pull-latest-default-branch
 ```
 
+
+
 ### `/npm-increment [<version>]`
 
 Analyzes changes since the last package version, recommends a semver bump (patch/minor/major), and runs `npm version` after user confirmation. Supports explicit target versions (e.g. `/npm-increment 2.0.0`) and re-prompts when you decline the recommendation (different bump, custom version, or cancel). Use when you want to "bump the version", "increment package version", or "release a new version".
@@ -75,6 +89,8 @@ Analyzes changes since the last package version, recommends a semver bump (patch
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill npm-increment
 ```
+
+
 
 ### `/staff-engineer-plan <query>`
 
@@ -84,6 +100,8 @@ Operates alongside Plan Mode in any agent to turn a free-form query into a produ
 npx skills add jpbullalayao/ragna-ai --skill staff-engineer-plan
 ```
 
+
+
 ### `/root-cause <query>`
 
 Addresses a specific task or bug by tracing to and fixing the true underlying cause rather than applying a surface band-aid. Follows the causal chain upstream from the symptom site to the cause site, then reasons with itself — via an explicit band-aid vs root test — to confirm the chosen fix resolves the whole class of problem before implementing. When the real root is genuinely out of scope, it applies a clearly labeled mitigation and flags the follow-up instead of patching silently. Use when you want to "fix", "address", "solve", or "get to the bottom of" a specific task or bug.
@@ -91,6 +109,8 @@ Addresses a specific task or bug by tracing to and fixing the true underlying ca
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill root-cause
 ```
+
+
 
 ### `/recall <query>`
 
@@ -100,11 +120,25 @@ Recalls prior agent-session context about a topic so follow-up work can continue
 npx skills add jpbullalayao/ragna-ai --skill recall
 ```
 
+
+
+### `/update-skills`
+
+Updates globally installed agent skills from the ragna-ai repo. Runs `npx skills add jpbullalayao/ragna-ai` from the home directory to refresh all skills at once. Use when you want to "update skills", "refresh skills", "sync skills", or pull the latest skill definitions.
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill update-skills
+```
+
+
+
 ## Install all at once
 
 ```bash
 npx skills add jpbullalayao/ragna-ai
 ```
+
+
 
 ## Requirements
 
@@ -114,3 +148,4 @@ npx skills add jpbullalayao/ragna-ai
 - Claude Code with MCP Linear server connected:
   - Required for `/create-ticket` (used to create issues)
   - Optional for `/self-code-review` (fetches ticket context — degrades gracefully if unavailable)
+
