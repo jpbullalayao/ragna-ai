@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "skills": {
+    "code-cleanup": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/code-cleanup/SKILL.md",
+      "computedHash": "997adfb4ed19acf8fdda79c8f857c63e10c921b72ce70654f869704d4cc6a468"
+    },
+    "create-ticket": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/create-ticket/SKILL.md",
+      "computedHash": "478000960982a45ab7588f6bb8952382bdf44ead7fc77dec2d727369665699cb"
+    },
+    "npm-increment": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/npm-increment/SKILL.md",
+      "computedHash": "cbe9763692b0c01f92ae72315241545ca2ad7cda399f02daf36f02cb1aeb0508"
+    },
+    "post-merge-cleanup": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/post-merge-cleanup/SKILL.md",
+      "computedHash": "3c074f37358af900d593eaf7d9b0f8d2d485768a0233c3cf3cb2376171197820"
+    },
+    "pull-latest-default-branch": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/pull-latest-default-branch/SKILL.md",
+      "computedHash": "d3651778b1d8326732f8391aaddef95023493ce59929d3b97f044c46b63156b8"
+    },
+    "recall": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/recall/SKILL.md",
+      "computedHash": "1fdc92d06704881acdea263274a27dcba06575bca6ebc370d5fc2304f2d894c4"
+    },
+    "root-cause": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/root-cause/SKILL.md",
+      "computedHash": "d60b58dfcb0669c4009bba4ba0ee90eb6bfc3531cc591d49355fd5ec69e59898"
+    },
+    "self-code-review": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/self-code-review/SKILL.md",
+      "computedHash": "f6f9bc0d63cd7213d59fc293711d8a5e24c2c4caec481e4af9f22fa2763acded"
+    },
+    "staff-engineer-plan": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/staff-engineer-plan/SKILL.md",
+      "computedHash": "f2dec12b504839611b75fbd5c830aa99b4e42cc0ba0113735a80d3ea4bcd21e6"
+    },
+    "submit-code-review": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/submit-code-review/SKILL.md",
+      "computedHash": "e489aa59cd61874951b8915d18367b946600115746203180c9e2f083bfcdb5d0"
+    },
+    "submit-pull-request": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/submit-pull-request/SKILL.md",
+      "computedHash": "f9d5acd8400c61210dd1f52970a637db1329e1cfa3d953d1c97c8ed778995e5c"
+    },
+    "write-docs": {
+      "source": "jpbullalayao/ragna-ai",
+      "sourceType": "github",
+      "skillPath": "skills/write-docs/SKILL.md",
+      "computedHash": "4e4126cb6571988047d11021cfdfc8257aa8217bb9db56630e232c24f2099a21"
+    }
+  }
+}
