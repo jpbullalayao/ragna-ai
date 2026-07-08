@@ -60,6 +60,14 @@ Syncs the default branch and deletes the merged working branch after a PR merge.
 npx skills add jpbullalayao/ragna-ai --skill post-merge-cleanup
 ```
 
+### `/pull-latest-default-branch`
+
+Fast-forwards the local default branch (main, master, etc.) to match the remote without switching away from your current branch. Uses `git pull --ff-only` when already on the default branch, or `git fetch origin DEFAULT:DEFAULT` for an in-place update from a feature branch. Prunes stale remote-tracking refs afterward. Use when you want to "pull latest main", "update local main", "sync default branch", or keep your local default branch current while staying on your working branch.
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill pull-latest-default-branch
+```
+
 ### `/npm-increment [<version>]`
 
 Analyzes changes since the last package version, recommends a semver bump (patch/minor/major), and runs `npm version` after user confirmation. Supports explicit target versions (e.g. `/npm-increment 2.0.0`) and re-prompts when you decline the recommendation (different bump, custom version, or cancel). Use when you want to "bump the version", "increment package version", or "release a new version".
