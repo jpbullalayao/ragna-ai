@@ -100,6 +100,14 @@ Recalls prior agent-session context about a topic so follow-up work can continue
 npx skills add jpbullalayao/ragna-ai --skill recall
 ```
 
+### `/update-skills`
+
+Updates globally installed agent skills from the ragna-ai repo. Runs `npx skills add jpbullalayao/ragna-ai` from the home directory to refresh all skills at once. Does not commit, push, or modify the ragna-ai workspace. Use when you want to "update skills", "refresh skills", "sync skills", or pull the latest skill definitions.
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill update-skills
+```
+
 ## Install all at once
 
 ```bash
