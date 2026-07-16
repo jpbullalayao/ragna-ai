@@ -15,15 +15,20 @@ Trigger on any of:
 - "open a PR" / "create a PR" / "create a pull request"
 - "push this up as a PR" / "turn this branch into a PR"
 
-If the user is clearly asking for a PR but is on `main` (or the repo's default branch), stop and ask which branch they want to PR — do not create a PR from the default branch.
+Never open a PR from `main` (or the repo's default branch). If the user is on the default branch, create a new feature branch yourself — do not ask which name to use.
 
 ## Workflow
 
-1. **Confirm the branch is ready.** Run in parallel:
-   - `git status` — check for uncommitted changes. If there are any, ask the user whether to commit them first or proceed without them.
+1. **Ensure a non-default branch with commits.** Run in parallel:
+   - `git status` — check for uncommitted changes and current branch.
    - `git branch --show-current` — capture the branch name.
    - `git log <base>..HEAD --oneline` — review the commits that will be in the PR. Use the repo's default branch as `<base>` (usually `main`; check with `gh repo view --json defaultBranchRef -q .defaultBranchRef.name` if unsure).
-   - `git diff <base>...HEAD` — read the diff so you can write a real Problem/Solution. Skim, don't dump.
+   - `git diff <base>...HEAD` and `git diff` / `git diff --staged` — read the committed and uncommitted diffs so you can name the branch, write the commit message, and draft Problem/Solution. Skim, don't dump.
+
+   Then, without asking the user:
+   - **On the default branch** — invent a short Conventional Commits-style branch name from the change (`feat/…`, `fix/…`, `chore/…`, `refactor/…`, `docs/…`), e.g. `chore/sync-eve-scaffold` or `fix/contract-preview-refresh`. Create it with `git checkout -b <branch>` and continue.
+   - **Uncommitted changes** — stage the relevant files (never secrets like `.env`) and commit them on the current (or newly created) branch using the repo's commit-message style. Do not ask whether to commit first; submitting a PR implies committing the work that belongs in it. Skip only clearly unrelated local junk (e.g. scratch files the diff shows are unrelated to the PR intent).
+   - **Already on a feature branch with a clean tree and commits ahead of base** — proceed.
 
 2. **Push the branch if needed.** If `git status` shows the branch isn't tracking a remote or is ahead of remote, push with `git push -u origin <branch>`.
 
@@ -91,8 +96,9 @@ Read the diff and commits before writing — these sections should reflect the a
 
 ## Edge cases
 
-- **No commits ahead of base** — stop and tell the user; nothing to PR.
-- **Detached HEAD** — stop and tell the user; can't PR a detached HEAD.
+- **On default branch with no local changes and no commits to move** — stop and tell the user; nothing to PR. Do not invent an empty branch.
+- **No commits ahead of base** (after committing any relevant uncommitted work) — stop and tell the user; nothing to PR.
+- **Detached HEAD** — create a new named branch from the current HEAD (same naming rules as above) and continue; only stop if there is no commit to PR.
 - **`gh` not authenticated** — surface the `gh auth login` prompt to the user; don't try to authenticate on their behalf.
 - **PR already exists for this branch** — `gh pr create` will fail. Run `gh pr view --json url -q .url` to surface the existing PR URL instead of creating a duplicate.
 - **Stacked PRs (Graphite)** — if the repo uses `gt` and the user mentions a stack, defer to the `graphite` skill rather than calling `gh pr create` directly.
