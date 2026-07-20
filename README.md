@@ -132,6 +132,16 @@ npx skills add jpbullalayao/ragna-ai --skill update-skills
 
 
 
+### `/optimize-skill [<skill-name>]`
+
+Reviews a single skill's `SKILL.md` for redundancies, contradictions, ambiguity, and fluff, then applies behavior-preserving rewrites for concise, clear instructions. Targets the skill named in the arg (or a path); with no arg, the `SKILL.md` in the current directory. Outlines the improvements before applying, and leaves genuinely unresolvable conflicts flagged for you. Use when you want to "optimize this skill", "improve this skill", or "tighten this skill".
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill optimize-skill
+```
+
+
+
 ## Install all at once
 
 ```bash
