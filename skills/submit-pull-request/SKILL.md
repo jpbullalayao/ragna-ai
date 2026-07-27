@@ -48,6 +48,37 @@ Never open a PR from `main` (or the repo's default branch). If the user is on th
 
 7. **Return the PR URL** so the user can open it and paste in the Before/After media.
 
+8. **Attach screenshots when asked or when the change is UI-visible.** If the user asked for screenshots (or the diff changes React components, pages, layouts, or styles and a dev server is available), follow [Screenshots](#screenshots) to capture Before/After media and embed it in the PR body. Skip silently for non-visual changes.
+
+## Screenshots
+
+Automates the Before/After sections for UI-visible changes. This step is best-effort: any failure (no dev server, capture error, push rejected) falls back to leaving the sections blank and telling the user where the local files are — never block PR creation on it.
+
+### Capture
+
+Use the project's browser-verification skill (`verify` / `agent-browser`) or the Playwright MCP tools directly (`browser_navigate` + `browser_take_screenshot`) against the local dev server. Drive the app to the state the PR changes and capture:
+
+- **After** — on the PR branch. Always capture this one.
+- **Before** — only when cheap to obtain: the base branch is already deployed/running elsewhere, or the user explicitly asks. Do NOT switch branches or stash a dirty tree just to capture a Before; leave that section blank instead.
+
+Save captures under the session scratchpad as `<pr-number>-before.png` / `<pr-number>-after.png`.
+
+### Attach
+
+GitHub PR bodies only render images from hosted URLs, and `gh` cannot use the web UI's drag-and-drop upload endpoint. Host the images on an orphan `pr-assets` branch:
+
+1. Create a temporary worktree for the branch (never touch the user's working tree):
+   - `git fetch origin pr-assets` — if it exists: `git worktree add <scratchpad>/pr-assets origin/pr-assets` (then `git switch -c pr-assets` inside it if detached).
+   - If it doesn't exist: `git worktree add --orphan -b pr-assets <scratchpad>/pr-assets`.
+2. Copy screenshots into `<worktree>/<pr-number>/` (e.g. `1607/after.png`), commit, and `git push origin pr-assets`. Capture the pushed commit SHA (`git rev-parse origin/pr-assets`).
+3. Embed in the PR body under the matching section using a SHA-pinned `?raw=true` blob URL:
+   `![After](https://github.com/<owner>/<repo>/blob/<sha>/<pr-number>/after.png?raw=true)`
+   Do NOT use `raw.githubusercontent.com` URLs — GitHub proxies markdown images through its anonymous Camo proxy, which cannot read private repos, so those embeds 404. `github.com/.../blob/...?raw=true` URLs are served by github.com directly and authenticate via the viewer's session, so they render inline for anyone with repo access. Pin to the commit SHA (not the branch name) so later pushes to `pr-assets` never break old PRs.
+   Keep the section's HTML comment hint in place above the image. Update the body with `gh pr edit <pr-number> --body-file <file>` (write the body with the Write tool first — no HEREDOCs).
+4. Remove the temporary worktree: `git worktree remove <scratchpad>/pr-assets`.
+
+The `pr-assets` branch is never merged and holds only PR media; do not add code to it.
+
 ## The template
 
 Every PR body produced by this skill MUST follow this exact structure, in this order:
@@ -83,7 +114,7 @@ Every PR body produced by this skill MUST follow this exact structure, in this o
 - **Ticket** — links the PR to the work item so reviewers and future readers can find the original context.
 - **Problem** — forces the author to articulate the user-visible or system-level issue, not just the code change.
 - **Solution** — gives reviewers a one-paragraph mental model before they start reading the diff.
-- **Before / After** — empty by design. The skill cannot capture screenshots or recordings; the author fills these in after the PR is opened. Keep the HTML comment so the author sees a hint when editing.
+- **Before / After** — filled automatically for UI-visible changes when a dev server is available (see [Screenshots](#screenshots)); otherwise left empty for the author to paste media in after the PR is opened. Keep the HTML comment so the author sees a hint when editing.
 - **Test plan** — concrete steps a reviewer (or the author) can run to verify the change. Bullets should be checkable, not vague ("works correctly" is not a test plan).
 
 ## Filling Problem / Solution / Test plan well
