@@ -52,7 +52,7 @@ Never open a PR from `main` (or the repo's default branch). If the user is on th
 
 ## Screenshots
 
-Automates the Before/After sections for UI-visible changes. This step is best-effort: any failure (no dev server, capture error, push rejected) falls back to leaving the sections blank and telling the user where the local files are — never block PR creation on it.
+Automates the Before/After sections for UI-visible changes. This step is best-effort: any failure (no dev server, capture error, upload rejected) falls back to leaving the sections blank and telling the user where the local files are — never block PR creation on it.
 
 ### Capture
 
@@ -65,19 +65,7 @@ Save captures under the session scratchpad as `<pr-number>-before.png` / `<pr-nu
 
 ### Attach
 
-GitHub PR bodies only render images from hosted URLs, and `gh` cannot use the web UI's drag-and-drop upload endpoint. Host the images on an orphan `pr-assets` branch:
-
-1. Create a temporary worktree for the branch (never touch the user's working tree):
-   - `git fetch origin pr-assets` — if it exists: `git worktree add <scratchpad>/pr-assets origin/pr-assets` (then `git switch -c pr-assets` inside it if detached).
-   - If it doesn't exist: `git worktree add --orphan -b pr-assets <scratchpad>/pr-assets`.
-2. Copy screenshots into `<worktree>/<pr-number>/` (e.g. `1607/after.png`), commit, and `git push origin pr-assets`. Capture the pushed commit SHA (`git rev-parse origin/pr-assets`).
-3. Embed in the PR body under the matching section using a SHA-pinned `?raw=true` blob URL:
-   `![After](https://github.com/<owner>/<repo>/blob/<sha>/<pr-number>/after.png?raw=true)`
-   Do NOT use `raw.githubusercontent.com` URLs — GitHub proxies markdown images through its anonymous Camo proxy, which cannot read private repos, so those embeds 404. `github.com/.../blob/...?raw=true` URLs are served by github.com directly and authenticate via the viewer's session, so they render inline for anyone with repo access. Pin to the commit SHA (not the branch name) so later pushes to `pr-assets` never break old PRs.
-   Keep the section's HTML comment hint in place above the image. Update the body with `gh pr edit <pr-number> --body-file <file>` (write the body with the Write tool first — no HEREDOCs).
-4. Remove the temporary worktree: `git worktree remove <scratchpad>/pr-assets`.
-
-The `pr-assets` branch is never merged and holds only PR media; do not add code to it.
+Invoke the `attach-media-to-pr` skill with the captured file(s), the PR number, and the target section ("Before" / "After"). It hosts the media via the GitHub Contents API and embeds SHA-pinned `?raw=true` URLs that render inline even on private repos — no worktrees or local git state involved. Do not hand-roll the upload here; the mechanics (branch bootstrap, Camo constraints, overwrite handling) live in that skill.
 
 ## The template
 
