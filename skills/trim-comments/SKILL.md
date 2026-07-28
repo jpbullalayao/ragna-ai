@@ -5,7 +5,9 @@ description: >-
   merely restate the name of the variable, method, prop, class, or file they
   annotate, and comments that reference removed or superseded functionality
   from earlier iterations of the feature (change-history narration like
-  "previously", "used to", "no longer", "changed from"). Use when the user
+  "previously", "used to", "no longer", "changed from"), and comments that
+  are needlessly verbose — condensing them to the shortest wording that
+  preserves comprehension. Use when the user
   runs /trim-comments [<path>|<branch>], or asks to "trim comments",
   "clean up comments", "remove redundant comments", or "delete stale
   comments". Defaults to the current branch's diff against its base branch;
@@ -23,7 +25,7 @@ allowed-tools:
 
 # Trim Comments
 
-Removes or rewrites comments that add no information beyond what the code already says, and comments that leak the iteration history of a feature. **Mutates the working tree** — all edits are applied inline with the Edit tool.
+Removes or rewrites comments that add no information beyond what the code already says, comments that leak the iteration history of a feature, and comments that say something worthwhile in more words than needed. **Mutates the working tree** — all edits are applied inline with the Edit tool.
 
 Invocation:
 - `/trim-comments` — operate on the current branch's diff against its base branch
@@ -76,6 +78,19 @@ Fix: **delete** the comment. If a doc comment mixes restatement with genuinely n
 
 Fix: **rewrite** the comment to describe the current implementation as if it had always worked this way — or **delete** it if the current code needs no explanation. Keep a reference to prior behavior only when it documents a deliberate, still-active concern (e.g. a backward-compatibility shim or migration note that callers depend on).
 
+**Category 3 — Verbosity.** The comment carries real information but says it in more words than comprehension requires: filler phrases ("note that", "it's worth mentioning", "basically", "in order to"), restating the obvious half of a sentence alongside the non-obvious half, multi-line prose where one line suffices, or hedging/narration aimed at a reviewer rather than the next reader. Examples:
+
+```ts
+// Note that we need to debounce here in order to avoid
+// firing a request on every single keystroke the user types
+→ // Debounced to avoid a request per keystroke
+
+/** This function is responsible for retrying the upload. Retries up to 3 times with exponential backoff. */
+→ /** Retries up to 3 times with exponential backoff. */
+```
+
+Fix: **rewrite** to the shortest wording that preserves the non-obvious information. Only shorten when no meaning is lost — if trimming would sacrifice comprehension of a constraint, gotcha, or rationale, keep the length.
+
 **Never touch:** comments stating non-obvious constraints, rationale, or gotchas the code can't express; license headers; directive comments (`eslint-disable`, `@ts-expect-error`, `prettier-ignore`, `TODO`/`FIXME` with real content); doc comments whose content goes beyond the name.
 
 ### Step 3: Present findings and apply
@@ -86,6 +101,7 @@ List every finding before editing:
 ### Comment Trim Findings
 - `path/to/file.ts:12` — [RESTATES] "// the user's email" → delete
 - `path/to/file.ts:48` — [REMNANT] "// no longer uses polling, now websockets" → rewrite: "// Pushes updates over the websocket connection"
+- `path/to/file.ts:73` — [VERBOSE] "// Note that we need to debounce here in order to avoid firing a request on every keystroke" → rewrite: "// Debounced to avoid a request per keystroke"
 (or: Nothing to trim.)
 ```
 
@@ -105,6 +121,7 @@ Then apply every fix with the Edit tool. When deleting a comment, remove the who
 
 - **Comments describe the present, not the past.** After this skill runs, no comment should read as a changelog entry.
 - **When in doubt, keep it.** Only remove a comment when it is unambiguously redundant or stale; a comment that might carry rationale stays.
+- **Shorter, never lossier.** Prefer the most concise wording, but never trade away comprehension — a longer comment that's needed to understand a constraint stays long.
 - **Rewrites are behavior-neutral.** Never change code — only comments, docstrings, and doc blocks.
 - **Stay in scope.** Only edit files in the resolved diff or path scope.
 - **Never run destructive git commands.** No `checkout`, `reset`, `stash`, `commit`, or `push`.
