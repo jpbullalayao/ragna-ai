@@ -142,6 +142,16 @@ npx skills add jpbullalayao/ragna-ai --skill optimize-skill
 
 
 
+### `/trim-comments [<path>|<branch>]`
+
+Relentlessly removes or rewrites low-value comments: comments that merely restate the name of the variable/method/prop they annotate, and iteration remnants that reference removed or superseded functionality ("previously…", "no longer…"). Defaults to the current branch's diff against its base branch; pass a path to scope it to specific files or directories. Lists findings before applying edits. Use when you want to "trim comments", "remove redundant comments", or "delete stale comments".
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill trim-comments
+```
+
+
+
 ## Install all at once
 
 ```bash
