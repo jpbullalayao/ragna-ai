@@ -22,6 +22,16 @@ npx skills add jpbullalayao/ragna-ai --skill submit-code-review
 
 
 
+### `/address-pr-comments [<branch>|<PR#>]`
+
+Fetches the review comments on the current branch's PR (or a given branch/PR number), assesses which are valid, concisely reports each problem and its anticipated fix, then implements the necessary fixes and pushes them to the PR. Invalid or out-of-scope comments are reported with reasoning but left untouched. Requires the `gh` CLI.
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill address-pr-comments
+```
+
+
+
 ### `/submit-pull-request`
 
 Creates a GitHub PR from the current branch using a fixed template (Ticket, Problem, Solution, Before, After, Test plan). Use when you want to "open a PR", "create a pull request", or "push this up as a PR".
@@ -163,7 +173,7 @@ npx skills add jpbullalayao/ragna-ai
 ## Requirements
 
 - `gh` CLI authenticated to GitHub (`gh auth login`):
-  - Required for `/submit-code-review` and `/submit-pull-request` (post PR comments / open PRs)
+  - Required for `/submit-code-review`, `/submit-pull-request`, and `/address-pr-comments` (post PR comments / open PRs / fetch reviews and push fixes)
   - Optional for `/self-code-review` and `/code-cleanup` (detect the open PR's base branch — degrade gracefully to the repo's default branch if unavailable)
 - Claude Code with MCP Linear server connected:
   - Required for `/create-ticket` (used to create issues)
