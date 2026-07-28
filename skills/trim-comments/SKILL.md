@@ -12,16 +12,11 @@ description: >-
   a path argument scopes it to specific files or directories instead.
 allowed-tools:
   - "Bash(git fetch *)"
-  - "Bash(git log *)"
   - "Bash(git diff *)"
-  - "Bash(git status *)"
-  - "Bash(git rev-parse *)"
   - "Bash(git merge-base *)"
   - "Bash(git symbolic-ref *)"
   - "Bash(gh pr view *)"
   - "Bash(gh repo view *)"
-  - "Bash(grep *)"
-  - "Bash(find *)"
   - "Read"
   - "Edit"
 ---
@@ -39,7 +34,7 @@ Invocation:
 
 ### Step 1: Resolve scope
 
-If an argument was given and it exists on disk, treat it as a path scope: collect the target source files (skip `node_modules`, lockfiles, build output, and generated files).
+If an argument was given and it exists on disk, treat it as a path scope: collect the target source files with the Glob tool (skip `node_modules`, lockfiles, build output, and generated files).
 
 Otherwise resolve `<base-branch>` in this priority order:
 
@@ -77,7 +72,7 @@ onClick: ...
 
 Fix: **delete** the comment. If a doc comment mixes restatement with genuinely non-obvious information (constraints, units, edge cases, side effects), keep only the informative part.
 
-**Category 2 — Iteration remnants.** The comment references decisions, behavior, or code that existed in an earlier iteration of the feature but was changed or removed. Signals: "previously", "used to", "no longer", "changed from", "instead of the old", "was doing X, now does Y", "legacy", references to functions/params/branches that don't exist in the current code, or explanations framed as a contrast against something the reader can no longer see. Verify a referenced symbol is truly gone with `grep` before flagging.
+**Category 2 — Iteration remnants.** The comment references decisions, behavior, or code that existed in an earlier iteration of the feature but was changed or removed. Signals: "previously", "used to", "no longer", "changed from", "instead of the old", "was doing X, now does Y", "legacy", references to functions/params/branches that don't exist in the current code, or explanations framed as a contrast against something the reader can no longer see. Verify a referenced symbol is truly gone with the Grep tool before flagging.
 
 Fix: **rewrite** the comment to describe the current implementation as if it had always worked this way — or **delete** it if the current code needs no explanation. Keep a reference to prior behavior only when it documents a deliberate, still-active concern (e.g. a backward-compatibility shim or migration note that callers depend on).
 
