@@ -7,8 +7,7 @@ description: >-
   implement the necessary fixes and push them to the PR. Use when the user
   types /address-pr-comments [<branch>|<PR#>], or asks to "address PR
   comments", "handle the review feedback", "fix the review comments", or
-  "respond to my PR reviews". Invalid or out-of-scope comments are reported
-  with reasoning but not acted on. Requires `gh` CLI authenticated to GitHub.
+  "respond to my PR reviews".
 allowed-tools:
   - "Bash(gh *)"
   - "Bash(git *)"
