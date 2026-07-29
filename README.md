@@ -72,6 +72,16 @@ npx skills add jpbullalayao/ragna-ai --skill write-docs
 
 
 
+### `/html-walkthrough <topic>`
+
+Studies a topic from your project — code, logic, docs, or other provided material — and publishes a Claude Artifact (a self-contained HTML page) that walks you through it. The walkthrough is concise and visual-first (flow charts, step lists, tables, callouts), grounded in the actual source, and written so someone unfamiliar with the codebase can deeply understand the topic. Use when you want to "walk me through", "teach me about", or "explain X as a visual walkthrough".
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill html-walkthrough
+```
+
+
+
 ### `/post-merge-cleanup`
 
 Syncs the default branch and deletes the merged working branch after a PR merge. Checks out main, pulls latest, deletes the local branch (with confirmation for force-delete on squash/rebase merges), deletes the remote branch if still present (with confirmation), and prunes stale remote-tracking refs. Use after merging a PR when you want to "clean up my branch", "pull main and delete this branch", or "post-merge cleanup".
