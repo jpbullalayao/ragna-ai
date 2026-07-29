@@ -28,15 +28,15 @@ Research the topic in the project before writing anything. Never invent behavior
 
 - Search the codebase for the relevant code, config, and docs (grep/glob for topic keywords, entry points, related types and routes).
 - Read the key files end-to-end enough to trace the actual flow: triggers, inputs, decision points, side effects, outputs, and failure paths.
-- Cap reads to the files genuinely needed to explain the topic accurately (typically 3–8).
-- If the topic isn't found in the project, say so and confirm with the user whether to proceed as a general/conceptual walkthrough instead.
+- Cap reads to the files genuinely needed to explain the topic accurately.
+- If the topic isn't found in the project, say so and proceed as a general/conceptual walkthrough instead.
 
 ### Step 3: Plan the walkthrough
 
 Before writing HTML, distill the research into a teaching outline:
 
 - One-sentence answer to "what is this and why does it exist."
-- The 3–7 steps or concepts a newcomer must grasp, in learning order (not code order).
+- The steps or concepts a newcomer must grasp, in learning order (not code order).
 - For each, the best format: flow chart for branching logic, sequence/step list for linear flows, table for comparisons or field references, short prose for the "why."
 - What to cut — implementation trivia that doesn't change understanding stays out.
 
