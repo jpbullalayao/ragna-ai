@@ -8,7 +8,7 @@ description: >-
   "previously", "used to", "no longer", "changed from"), and comments that
   are needlessly verbose — condensing them to the shortest wording that
   preserves comprehension. Use when the user
-  runs /trim-comments [<path>|<branch>], or asks to "trim comments",
+  runs /trim-comments [path or branch], or asks to "trim comments",
   "clean up comments", "remove redundant comments", or "delete stale
   comments". Defaults to the current branch's diff against its base branch;
   a path argument scopes it to specific files or directories instead.
