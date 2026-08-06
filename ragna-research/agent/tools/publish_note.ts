@@ -20,7 +20,7 @@ export default defineTool({
       return {
         ok: false as const,
         error:
-          "No notes destinations configured. Set NOTION_API_KEY and NOTION_PARENT_PAGE_ID (see docs/SETUP_TODO.md).",
+          "No notes destinations configured. Set NOTION_API_KEY and NOTION_PARENT_PAGE_ID in your environment.",
       };
     }
 
