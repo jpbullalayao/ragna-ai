@@ -2,6 +2,8 @@
 
 Personal agent skills for my developer & other personal workflows. Each skill is individually installable via the [skills.sh](https://skills.sh) CLI.
 
+This repository also contains **[ragna-research](./ragna-research/)**, a [Vercel Eve](https://eve.dev) agent that runs daily research and publishes notes to Notion (extensible to other notes apps). Deploy and configure it from the `ragna-research/` directory; setup steps are in [ragna-research/docs/SETUP_TODO.md](./ragna-research/docs/SETUP_TODO.md).
+
 ## Skills
 
 ### `/self-code-review`
