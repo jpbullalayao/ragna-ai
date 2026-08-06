@@ -1,8 +1,8 @@
 # ragna-research
 
-Eve agent that runs **daily research** on a configurable topic and **publishes notes** to external notes apps. Notion is the first destination; additional adapters plug in under `agent/lib/notes/destinations/`.
+Eve project for **Ragna AI**, an agent that runs **daily research** on a configurable topic and **publishes notes** to external notes apps. Notion is the first destination; additional adapters plug in under `agent/lib/notes/destinations/`.
 
-This directory is the **Vercel deploy root** for the agent (run `eve link` and `eve deploy` from here).
+This directory is the **Vercel deploy root** for the agent (run `eve link` and `eve deploy` from here). The package/project name is `ragna-research`; the agent’s identity is **Ragna AI**.
 
 ## Prerequisites
 

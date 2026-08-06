@@ -1,13 +1,13 @@
-# Setup TODO — ragna-research → Notion
+# Setup TODO — Ragna AI (ragna-research) → Notion
 
-Use this checklist to go from the scaffolded agent to **daily research notes landing in Notion** on Vercel.
+Use this checklist to go from the scaffolded agent (**Ragna AI**, project `ragna-research`) to **daily research notes landing in Notion** on Vercel.
 
 ## 1. Notion Internal Integration (recommended for cron)
 
 Scheduled runs use **app-scoped** credentials. User OAuth via Vercel Connect does not attach a user principal to cron sessions.
 
 - [ ] Open [Notion My integrations](https://www.notion.so/my-integrations) → **New integration**.
-- [ ] Name it (e.g. `ragna-research`), select the workspace, create.
+- [ ] Name it (e.g. `Ragna AI`), select the workspace, create.
 - [ ] Copy the **Internal Integration Secret** → this is `NOTION_API_KEY`.
 - [ ] In Notion, open the **parent page** where daily notes should appear → **⋯** → **Connect to** → select your integration.
 - [ ] Copy the parent page ID from the URL (`https://notion.so/...<32-char-id>`) → `NOTION_PARENT_PAGE_ID` (UUID with hyphens).
