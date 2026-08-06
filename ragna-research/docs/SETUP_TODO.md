@@ -36,23 +36,44 @@ Publish exactly one consolidated note with `publish_note`.
 
 From `ragna-research/`:
 
-- [ ] `npm i -g vercel` (if needed)
-- [ ] `eve link` — create or link a Vercel project (deploy root = this directory).
-- [ ] Enable **AI Gateway** on the project (dashboard) so gateway model strings work with OIDC.
-- [ ] `vercel env pull` — pulls `VERCEL_OIDC_TOKEN` and related vars for local dev.
+- [x] `npm i -g vercel` (if needed)
+- [x] Root Directory set to `ragna-research` (monorepo: repo `jpbullalayao/ragna-ai`, app lives in this folder)
+- [ ] **Connect GitHub to Vercel** (required before `vercel git connect` works): [Account → Authentication → GitHub](https://vercel.com/account/settings/authentication) → connect GitHub as a login connection (not just CLI login).
+- [ ] **Link the repo** (from repo root, after GitHub is connected):
 
-Add production env vars in the Vercel dashboard (or `vercel env add`):
+  ```bash
+  cd /path/to/ragna-ai
+  vercel link --yes --project ragna-research --scope jpbullalayaos-projects
+  vercel git connect
+  ```
 
-- [ ] `NOTION_API_KEY` (mark **Sensitive**)
-- [ ] `NOTION_PARENT_PAGE_ID`
+  Production deploys will track **`main`** (or your default branch). Push to `main` or merge PRs to trigger builds.
+
+- [x] AI Gateway — team already has Gateway access; created key `ragna-research` and set `AI_GATEWAY_API_KEY` on Production/Preview/Development (OIDC also available on Vercel via `VERCEL_OIDC_TOKEN`)
+- [x] OIDC / env pull — deploy flow wrote `VERCEL_OIDC_TOKEN` into `.env.local`
+
+Production env vars (set via `vercel env add`):
+
+- [x] `NOTION_API_KEY` (Sensitive on Production/Preview)
+- [x] `NOTION_PARENT_PAGE_ID` (UUID form: `3b43e4e5-359a-8089-a629-face9c03fb14`)
 
 Optional: `AI_GATEWAY_API_KEY` instead of OIDC for non-Vercel hosts.
 
 ## 4. Deploy
 
-- [ ] `npm run deploy` (or push to a Git-connected Vercel project with root directory `ragna-research`).
-- [ ] `curl https://<your-deployment>/eve/v1/health` returns OK.
-- [ ] Vercel **Settings → Cron Jobs** lists `daily_research` (`0 14 * * *` **UTC** ≈ 07:00 US Pacific during PDT).
+- [x] Production URL: https://ragna-research.vercel.app
+- [x] `curl https://ragna-research.vercel.app/eve/v1/health` returns `{"ok":true,"status":"ready",...}`
+
+**CLI deploy (monorepo):** run from the **repo root** (not `ragna-research/` alone), because the Vercel project Root Directory is `ragna-research`:
+
+```bash
+cd /path/to/ragna-ai
+vercel deploy --prod
+```
+
+Or from `ragna-research/`: `npm run deploy` only works if project Root Directory is `.`; with Git monorepo settings, prefer repo-root `vercel deploy --prod` above.
+
+- [x] Deploy includes cron route `eve/v1/cron/...` for `daily_research` (`0 14 * * *` **UTC** ≈ 07:00 US Pacific during PDT) — confirm under Vercel **Settings → Cron Jobs** if desired
 
 Adjust cron in `agent/schedules/daily_research.ts` if you need a different UTC time.
 
