@@ -1,6 +1,6 @@
 # ragna-research
 
-Eve project for **Ragna AI**, an agent that runs **daily research** on a configurable topic and **publishes notes** to external notes apps. Notion is the first destination; additional adapters plug in under `agent/lib/notes/destinations/`.
+Eve project for **Ragna AI**, an agent that runs **daily research** on topics you define (via schedules or prompts) and **publishes notes** to external notes apps. Notion is the first destination; additional adapters plug in under `agent/lib/notes/destinations/`.
 
 This directory is the **Vercel deploy root** for the agent (run `eve link` and `eve deploy` from here). The package/project name is `ragna-research`; the agent’s identity is **Ragna AI**.
 
@@ -15,7 +15,8 @@ This directory is the **Vercel deploy root** for the agent (run `eve link` and `
 ```bash
 cd ragna-research
 cp .env.example .env.local
-# Edit .env.local — at minimum RESEARCH_TOPIC and Notion vars for publish tests
+# Edit .env.local — Notion vars for publish tests
+# Set topics by editing or adding files under agent/schedules/
 npm install
 npm run dev
 ```
@@ -26,7 +27,7 @@ Inspect discovered capabilities:
 npm exec -- eve info
 ```
 
-Trigger the daily schedule once (dev only):
+Trigger a schedule once (dev only):
 
 ```bash
 curl -X POST http://localhost:2000/eve/v1/dev/schedules/daily_research
@@ -43,7 +44,7 @@ curl -X POST http://localhost:2000/eve/v1/dev/schedules/daily_research
 
 ## Architecture
 
-- **Schedule** — `agent/schedules/daily_research.ts` (Vercel Cron, UTC)
+- **Topics** — each `agent/schedules/*` (or session prompt) states what to research
 - **Skill** — `agent/skills/daily_research/` workflow
 - **Research** — `agent/extensions/browser.ts` (agent-browser)
 - **Publish** — `agent/tools/publish_note.ts` → `agent/lib/notes/registry.ts` → destinations (Notion today)

@@ -12,10 +12,25 @@ Scheduled runs use **app-scoped** credentials. User OAuth via Vercel Connect doe
 - [ ] In Notion, open the **parent page** where daily notes should appear → **⋯** → **Connect to** → select your integration.
 - [ ] Copy the parent page ID from the URL (`https://notion.so/...<32-char-id>`) → `NOTION_PARENT_PAGE_ID` (UUID with hyphens).
 
-## 2. Research topic
+## 2. Research topics (schedules)
 
-- [ ] Choose a topic string (e.g. `Vercel AI SDK`, `local LLM inference`).
-- [ ] Set `RESEARCH_TOPIC` in Vercel project env (and locally in `.env.local` for dev).
+Each topic is a schedule (or an ad-hoc session prompt) — no central topics list.
+
+- [ ] Edit [`agent/schedules/daily_research.ts`](../agent/schedules/daily_research.ts) and replace the placeholder topic in the markdown prompt.
+- [ ] Or add another file under `agent/schedules/` (e.g. `vercel_ai_sdk.ts` or `vercel_ai_sdk.md`) with its own `cron` and research prompt.
+- [ ] Redeploy (or restart `eve dev`) so new schedules register as Vercel Cron jobs.
+
+Markdown schedule example:
+
+```md
+---
+cron: "0 14 * * *"
+---
+
+Conduct daily research on: **Vercel AI SDK**.
+Load the `daily_research` skill and follow it end to end.
+Publish exactly one consolidated note with `publish_note`.
+```
 
 ## 3. Vercel project + Eve link
 
@@ -28,7 +43,6 @@ From `ragna-research/`:
 
 Add production env vars in the Vercel dashboard (or `vercel env add`):
 
-- [ ] `RESEARCH_TOPIC`
 - [ ] `NOTION_API_KEY` (mark **Sensitive**)
 - [ ] `NOTION_PARENT_PAGE_ID`
 

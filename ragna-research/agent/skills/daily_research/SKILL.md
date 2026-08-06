@@ -4,7 +4,7 @@ description: Run the daily research workflow — browse sources, synthesize find
 
 When executing daily research:
 
-1. Confirm the topic from the session prompt or `RESEARCH_TOPIC`.
+1. Confirm the topic from the session prompt (schedule body, skill, or user message).
 2. Search and read a small set of high-signal sources (browser tools or web search if available).
 3. Draft a markdown note with:
    - `# Daily research — <topic> — <date>`
