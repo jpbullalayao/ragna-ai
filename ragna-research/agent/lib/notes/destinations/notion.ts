@@ -1,15 +1,11 @@
 import type { NotesDestination, PublishNoteInput } from "../types.js";
 
-const NOTION_VERSION = "2022-06-28";
+/** Supports native `markdown` on page create (tables, lists, links). */
+const NOTION_VERSION = "2026-03-11";
 const MAX_TEXT_LENGTH = 2000;
+const ASYNC_MARKDOWN_THRESHOLD = 8000;
 
 type NotionRichText = { type: "text"; text: { content: string } };
-
-type NotionBlock =
-  | { type: "paragraph"; paragraph: { rich_text: NotionRichText[] } }
-  | { type: "heading_1"; heading_1: { rich_text: NotionRichText[] } }
-  | { type: "heading_2"; heading_2: { rich_text: NotionRichText[] } }
-  | { type: "heading_3"; heading_3: { rich_text: NotionRichText[] } };
 
 function chunkText(text: string): string[] {
   const chunks: string[] = [];
@@ -26,62 +22,77 @@ function richText(content: string): NotionRichText[] {
   }));
 }
 
-function paragraph(content: string): NotionBlock {
-  return { type: "paragraph", paragraph: { rich_text: richText(content) } };
+/** Drop leading H1 when the page title is set separately in properties. */
+function bodyMarkdown(markdown: string, tags?: string[]): string {
+  let md = markdown.replace(/\r\n/g, "\n").replace(/^#\s+.+\n?/, "").trim();
+  if (tags?.length) {
+    md += `\n\n---\n\nTags: ${tags.join(", ")}`;
+  }
+  return md;
 }
 
-/** Minimal markdown → Notion blocks (headings and paragraphs). */
-export function markdownToNotionBlocks(markdown: string): NotionBlock[] {
-  const blocks: NotionBlock[] = [];
-  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
-  let paragraphBuffer: string[] = [];
+type AsyncTaskResponse = {
+  object?: string;
+  id?: string;
+  status?: string;
+  poll_after_seconds?: number;
+  result?: { object?: string; id?: string; url?: string };
+  error?: { message?: string };
+};
 
-  const flushParagraph = () => {
-    const text = paragraphBuffer.join("\n").trim();
-    paragraphBuffer = [];
-    if (text) blocks.push(paragraph(text));
-  };
-
-  for (const line of lines) {
-    const heading = /^(#{1,3})\s+(.*)$/.exec(line);
-    if (heading) {
-      flushParagraph();
-      const level = heading[1].length;
-      const content = heading[2].trim();
-      if (!content) continue;
-      const rt = richText(content);
-      if (level === 1) blocks.push({ type: "heading_1", heading_1: { rich_text: rt } });
-      else if (level === 2)
-        blocks.push({ type: "heading_2", heading_2: { rich_text: rt } });
-      else blocks.push({ type: "heading_3", heading_3: { rich_text: rt } });
-      continue;
+async function pollAsyncTask(
+  apiKey: string,
+  taskId: string,
+): Promise<{ id: string; url?: string }> {
+  const maxAttempts = 90;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const res = await fetch(`https://api.notion.com/v1/async_tasks/${taskId}`, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Notion-Version": NOTION_VERSION,
+      },
+    });
+    if (!res.ok) {
+      const detail = await res.text();
+      throw new Error(`Notion async task poll error (${res.status}): ${detail}`);
     }
-    if (line.trim() === "") {
-      flushParagraph();
-      continue;
+    const task = (await res.json()) as AsyncTaskResponse;
+    if (task.status === "succeeded") {
+      const pageId = task.result?.id;
+      if (!pageId) {
+        throw new Error("Notion async task succeeded but returned no page id");
+      }
+      return { id: pageId, url: task.result?.url };
     }
-    paragraphBuffer.push(line);
+    if (task.status === "failed") {
+      throw new Error(
+        `Notion async task failed: ${task.error?.message ?? "unknown error"}`,
+      );
+    }
+    const waitSec = task.poll_after_seconds ?? 2;
+    await new Promise((resolve) => setTimeout(resolve, waitSec * 1000));
   }
-  flushParagraph();
-
-  return blocks.length > 0 ? blocks : [paragraph("")];
+  throw new Error("Notion async page create timed out");
 }
 
 async function createNotionPage(
   apiKey: string,
   parentPageId: string,
   title: string,
-  children: NotionBlock[],
+  markdown: string,
 ): Promise<{ id: string; url?: string }> {
-  const body = {
+  const body: Record<string, unknown> = {
     parent: { page_id: parentPageId },
     properties: {
       title: {
         title: richText(title),
       },
     },
-    children: children.slice(0, 100),
+    markdown,
   };
+  if (markdown.length >= ASYNC_MARKDOWN_THRESHOLD) {
+    body.allow_async = true;
+  }
 
   const res = await fetch("https://api.notion.com/v1/pages", {
     method: "POST",
@@ -92,6 +103,14 @@ async function createNotionPage(
     },
     body: JSON.stringify(body),
   });
+
+  if (res.status === 202) {
+    const task = (await res.json()) as AsyncTaskResponse;
+    if (!task.id) {
+      throw new Error("Notion returned async task without id");
+    }
+    return pollAsyncTask(apiKey, task.id);
+  }
 
   if (!res.ok) {
     const detail = await res.text();
@@ -112,12 +131,8 @@ export function createNotionDestination(): NotesDestination | null {
     async publish(input: PublishNoteInput) {
       const datePrefix = input.date ? `[${input.date}] ` : "";
       const title = `${datePrefix}${input.title}`.slice(0, 2000);
-      let markdown = input.markdown;
-      if (input.tags?.length) {
-        markdown += `\n\n---\n\nTags: ${input.tags.join(", ")}`;
-      }
-      const children = markdownToNotionBlocks(markdown);
-      return createNotionPage(apiKey, parentPageId, title, children);
+      const markdown = bodyMarkdown(input.markdown, input.tags);
+      return createNotionPage(apiKey, parentPageId, title, markdown);
     },
   };
 }
