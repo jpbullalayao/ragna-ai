@@ -2,21 +2,15 @@
 name: checkout-branch
 description: >-
   Check out a git branch on the local checkout, handling every edge case
-  automatically: branches checked out in another worktree (removes the worktree
-  and checks out the branch locally), remote-only branches (creates a tracking
-  branch), ambiguous multi-remote branches, and detached-HEAD states. Use when
-  the user types /checkout-branch <branch>, or asks to "check out <branch>",
-  "switch to <branch>", or "move to <branch>".
+  automatically: branches checked out in another worktree, remote-only
+  branches, ambiguous multi-remote branches, and uncommitted local changes.
+  Use when the user types /checkout-branch <branch>, or asks to
+  "check out <branch>", "switch to <branch>", or "move to <branch>".
 allowed-tools:
-  - "Bash(git status *)"
-  - "Bash(git branch *)"
   - "Bash(git checkout *)"
-  - "Bash(git switch *)"
   - "Bash(git fetch *)"
   - "Bash(git stash *)"
-  - "Bash(git rev-parse *)"
   - "Bash(git worktree *)"
-  - "Bash(git ls-remote *)"
   - "Bash(git for-each-ref *)"
 ---
 
@@ -30,82 +24,60 @@ The branch name is provided as the argument: `/checkout-branch <branch>`. If no 
 
 ## Workflow
 
-### 1. Gather state
+Optimize for the common case: attempt the checkout immediately and remediate only if it fails. No upfront state-gathering or fetching.
 
-Run in parallel:
-
-```bash
-git status --porcelain
-git branch --show-current
-git fetch --all --prune
-```
-
-Then determine where the branch exists:
+### 1. Fast path — just check out
 
 ```bash
-git for-each-ref "refs/heads/<BRANCH>" "refs/remotes/*/<BRANCH>"
-git worktree list --porcelain
+git checkout <BRANCH>
 ```
 
-### 2. Protect uncommitted work
+If this succeeds (Git also auto-creates a tracking branch when exactly one remote has the branch), skip to step 3. If it fails, match the error to a case in step 2.
 
-If `git status --porcelain` shows changes and the checkout could touch those files, stash first and remember to restore:
+### 2. Remediate by failure case
+
+**Branch is checked out in another worktree** — error mentions "already used by worktree" / "already checked out". Release it, then retry:
+
+```bash
+git worktree list --porcelain   # find the worktree path holding <BRANCH>
+git worktree remove <worktree-path>
+git checkout <BRANCH>
+```
+
+If the worktree has uncommitted or untracked changes, do NOT force-remove — report the dirty worktree and stop unless the user confirms `git worktree remove --force`. If the worktree path no longer exists on disk, run `git worktree prune` instead of `remove`.
+
+**Local changes would be overwritten** — auto-stash and retry:
 
 ```bash
 git stash push -u -m "checkout-branch: auto-stash before switching to <BRANCH>"
+git checkout <BRANCH>
+git stash pop
 ```
 
-Only stash when a plain checkout would fail or overwrite changes — try the checkout first; stash on failure, then retry.
+If the pop conflicts, leave the stash intact and report the conflict for the user to resolve.
 
-### 3. Resolve the branch and check it out
-
-Handle whichever case applies:
-
-**Already on the branch** — report and stop (still pull no updates; just confirm).
-
-**Branch is checked out in a worktree** — `git worktree list --porcelain` shows the branch attached to another worktree path. Git refuses to check out a branch active in another worktree, so release it first:
+**Branch not found** — the branch has no local ref and no remote-tracking ref yet. Fetch and retry once:
 
 ```bash
-git worktree remove <worktree-path>
-# If the worktree has uncommitted/untracked changes, do NOT force-remove.
-# Report the dirty worktree to the user and stop unless they confirm; on
-# confirmation use: git worktree remove --force <worktree-path>
+git fetch --all --prune
 git checkout <BRANCH>
 ```
 
-If the worktree path no longer exists on disk, use `git worktree prune` instead of `remove`, then check out.
-
-**Local branch exists (no worktree conflict)**:
-
-```bash
-git checkout <BRANCH>
-```
-
-**Branch exists only on one remote**:
+If it still fails because multiple remotes have the branch, check out with an explicit remote (prefer `origin`; otherwise ask the user):
 
 ```bash
 git checkout --track <remote>/<BRANCH>
 ```
 
-**Branch exists on multiple remotes** — prefer `origin`; otherwise ask the user which remote to track.
+If the branch exists nowhere after fetching, report that and stop — do not create a new branch unless the user asks.
 
-**Branch not found anywhere** — report that the branch does not exist locally or on any remote and stop. Do not create a new branch unless the user asks.
+**Already on the branch** — Git says so; just confirm to the user and stop.
 
-### 4. Restore stashed work
-
-If step 2 stashed changes, restore them:
-
-```bash
-git stash pop
-```
-
-If the pop conflicts, leave the stash intact, report the conflict, and let the user resolve it.
-
-### 5. Report
+### 3. Report
 
 Return a short summary:
 
-- Branch checked out and its current commit SHA
-- Which case applied (local, remote-tracking created, worktree released, etc.)
+- Branch checked out and its current commit SHA (from the checkout output)
+- Which case applied, if any remediation was needed
 - Whether changes were auto-stashed and restored
 - Any action needing user follow-up (dirty worktree, stash conflict)
