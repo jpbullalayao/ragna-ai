@@ -1,7 +1,7 @@
 ---
 name: submit-code-review
 description: >-
-  Post the code-review findings already present in the current conversation as
+  Post the code review findings already present in the current conversation as
   GitHub PR comments on the current branch's pull request. Use AFTER a code
   review has been run in the conversation, when the user types
   /submit-code-review or asks to "submit the review", "post the comments to
@@ -24,7 +24,7 @@ allowed-tools:
 
 # Submit Code Review
 
-Takes the code-review findings already present in the current conversation and
+Takes the code review findings already present in the current conversation and
 posts them on the current branch's GitHub pull request via the `gh` CLI.
 **Inline comments are preferred** — findings with a `file:line` citation are
 posted directly on the relevant line; everything else falls back to a regular
@@ -53,17 +53,17 @@ Store:
 
 ### Step 2: Read findings from the conversation
 
-Look back through the current conversation for the most recent code-review
+Look back through the current conversation for the most recent code review
 output. Findings may be grouped under categories (bugs, regressions,
 duplication, stale code, etc.) or listed flat — extract each individual finding
 as a separate item to post.
 
 If `FOCUS` is set, filter to only findings relevant to that area and skip the rest.
 
-If no code-review findings are found in the conversation, stop immediately and
+If no code review findings are found in the conversation, stop immediately and
 tell the user:
 
-> "No code-review findings found in this conversation. Run a code review first,
+> "No code review findings found in this conversation. Run a code review first,
 > then re-run /submit-code-review."
 
 If the review reported no issues, tell the user there is nothing to post and stop.
