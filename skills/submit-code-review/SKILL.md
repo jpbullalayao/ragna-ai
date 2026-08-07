@@ -9,7 +9,8 @@ description: >-
   conversation. Optionally filters by a user-provided focus area. Prioritizes
   inline PR review comments (attached to the specific file and line) where
   a file:line citation exists; falls back to regular PR conversation comments
-  when no citation is available or the inline post fails. Each comment starts
+  when no citation is available. All inline comments are submitted together as
+  a single PR review, never one review per finding. Each comment starts
   with "_Comment from Claude Code agent · [Model]_" in italics (where [Model]
   is the short name of the Claude model currently running, e.g. "Sonnet 4.6",
   "Opus 4.7", "Haiku 4.5"), two blank lines, then "non-blocking" (default) or
@@ -17,6 +18,7 @@ description: >-
   line. Requires `gh` CLI authenticated to GitHub.
 allowed-tools:
   - "Bash(gh *)"
+  - "Write"
 ---
 
 # Submit Code Review
@@ -26,6 +28,12 @@ conversation and posts them on the current branch's GitHub pull request via
 the `gh` CLI. **Inline comments are preferred** — findings with a `file:line`
 citation are posted directly on the relevant line; everything else falls back
 to a regular PR conversation comment.
+
+**All inline comments ship as one review.** They are batched into a single
+`POST /pulls/{n}/reviews` call. Posting them one at a time via
+`POST /pulls/{n}/comments` creates a *standalone* review comment, and GitHub
+wraps each standalone comment in its own single-comment review — five findings
+become five reviews cluttering the PR timeline. Never use that endpoint here.
 
 **Never re-analyzes the diff.** This skill is the second step in a two-step flow:
 1. `/self-code-review` — analyzes the diff, outputs findings in the conversation
@@ -104,6 +112,23 @@ backtick-wrapped path followed by a colon and a line number, such as:
 Findings from **Other Notes** (high-level observations without a specific location)
 almost never have citations — treat them as regular comments.
 
+**Then validate every inline candidate against the diff.** GitHub rejects the
+*entire* batched review with a 422 if even one comment targets a line outside the
+diff, so filter before posting rather than discovering it on submit:
+
+```bash
+gh api "repos/REPO/pulls/PR_NUMBER/files" --jq '.[] | select(.filename=="PATH") | .patch'
+```
+
+For each hunk header `@@ -old,oldCount +new,newCount @@`, the commentable range on
+the right side is `new` through `new + newCount - 1`. A candidate survives if `PATH`
+appears in the file list **and** `LINE` falls inside one of that file's hunk ranges.
+
+Any candidate that fails validation is **demoted to a regular comment** — keep its
+`file:line` citation in the body so the location is not lost. Prefer re-anchoring a
+finding to a nearby changed line over demoting it, when the nearby line still makes
+the point.
+
 ### Step 5: Determine severity label
 
 - Use `non-blocking` for all comments by default.
@@ -165,44 +190,75 @@ Swap `non-blocking` for `blocking` when `BLOCKING` is `true` (applies to both ty
   "consider splitting this into two modules"), omit the block entirely rather than
   writing placeholder pseudo-code.
 
-### Step 7: Post comments sequentially
+### Step 7: Post the review
 
-Process each finding one at a time (never in parallel). For each finding:
+#### A — Inline comments → one batched review
 
-#### A — Inline comment (has file:line citation)
+Skip this section entirely when no inline candidates survived Step 4.
 
-Attempt to post an inline review comment on the specific line:
+Write the whole review as a single JSON payload, then submit it in one call.
+Compose the file with the Write tool — the bodies contain markdown, backticks, and
+newlines, so building JSON inline in the shell is unreliable. Put it in the session
+scratchpad directory when one is available, otherwise a temp path; call it
+`PAYLOAD_PATH`.
 
-```bash
-gh api "repos/REPO/pulls/PR_NUMBER/comments" \
-  --method POST \
-  --field commit_id="HEAD_SHA" \
-  --field path="PATH" \
-  --field line=LINE \
-  --field side="RIGHT" \
-  --field body="FORMATTED_BODY"
+```json
+{
+  "commit_id": "HEAD_SHA",
+  "event": "COMMENT",
+  "body": "_Code review from Claude Code agent · [Model]_",
+  "comments": [
+    { "path": "PATH", "line": LINE, "side": "RIGHT", "body": "FORMATTED_BODY" }
+  ]
+}
 ```
 
-If this call fails for any reason (line not in diff, path not found, API error),
-**fall back immediately** to a regular PR comment (see B below). Do not retry
-the inline call.
-
-#### B — Regular PR comment (no citation, or inline fallback)
+- `body` is **required** when `event` is `COMMENT` — a review with only comments
+  and an empty body is rejected. Keep it to the one-line attribution above.
+- Each comment keeps its own `_Comment from Claude Code agent · [Model]_` header.
+  It reads as redundant on the PR page but is what a reader sees when a single
+  comment arrives by email or is quoted in isolation.
+- `commit_id` defaults to the PR's most recent commit; pass `HEAD_SHA` anyway so
+  the review anchors to the revision that was actually reviewed.
 
 ```bash
-gh pr comment --body "FORMATTED_BODY"
+gh api "repos/REPO/pulls/PR_NUMBER/reviews" --method POST --input PAYLOAD_PATH
 ```
+
+**If the call fails**, do not retry with `POST /pulls/{n}/comments` — that is the
+behavior this batching exists to avoid. Instead:
+
+1. If the error names an offending `path`/`line`, drop those comments to the
+   regular-comment bucket (keeping their citations) and retry the batched review
+   **once**.
+2. If it still fails, post the remaining inline findings as regular PR comments
+   via B. Line anchoring is lost but the citations remain in the bodies, and the
+   PR timeline stays clean.
+
+#### B — Regular PR comments (no citation, demoted, or review fallback)
+
+One call per finding, sequentially:
+
+```bash
+gh pr comment PR_NUMBER --body-file BODY_PATH
+```
+
+Use `--body-file` rather than `--body` so markdown and newlines survive intact.
+These are issue comments, not review comments, so they add no reviews to the PR.
 
 ### Step 8: Output summary
 
-After all comments are posted:
+After everything is posted:
 
 ```
 Posted N comment(s) on PR #<number>: <title>
-  • X inline comment(s)
+  • X inline comment(s) in 1 review
   • Y conversation comment(s)
 <PR URL>
 ```
+
+Omit a bullet whose count is zero. If the batched review had to be degraded to
+conversation comments, say so explicitly rather than reporting a clean tally.
 
 ---
 
@@ -255,8 +311,12 @@ The PR description doesn't mention the schema migration — worth noting for rev
   the focus filter), tell the user: "No findings to post — no comments were submitted."
 - **`gh` auth is required.** Run `gh auth status` first. If unauthenticated, tell the
   user to run `gh auth login` and stop.
+- **One review, always.** Every inline comment goes in a single
+  `POST /pulls/{n}/reviews` call. `POST /pulls/{n}/comments` is never correct here —
+  it produces one review per finding.
 - **Inline failures are silent fallbacks.** Do not surface API errors to the user for
-  individual inline attempts — just fall back and continue. Report the final tally in
+  individual demotions — just fall back and continue. Report the final tally in
   the summary.
-- **Read-only.** Never modify any files in the working tree.
+- **Read-only in the repo.** Never modify any files in the working tree. The review
+  payload is written to the scratchpad, not the project.
 - **Never hardcode PR numbers, SHAs, or repo paths.** Always derive from `gh` output.
