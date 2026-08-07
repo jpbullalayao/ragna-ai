@@ -104,7 +104,7 @@ npx skills add jpbullalayao/ragna-ai --skill pull-latest-default-branch
 
 ### `/checkout-branch <branch>`
 
-Checks out a git branch on the local checkout, handling every edge case automatically: branches held by another worktree, remote-only branches, ambiguous multi-remote branches, and uncommitted local changes. Attempts the checkout immediately and remediates only on failure — releasing worktrees, auto-stashing and restoring changes, or fetching once when the branch isn't known locally — so the common case is a single local git command. Use when you want to "check out", "switch to", or "move to" a branch.
+Checks out a git branch on the local checkout, handling every edge case automatically: branches held by another worktree, remote-only branches, and uncommitted local changes. Attempts the checkout immediately and remediates only on failure — releasing worktrees, auto-stashing and restoring changes, or fetching once when the branch isn't known locally — so the common case is a single local git command. Use when you want to "check out", "switch to", or "move to" a branch.
 
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill checkout-branch

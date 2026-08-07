@@ -3,7 +3,7 @@ name: checkout-branch
 description: >-
   Check out a git branch on the local checkout, handling every edge case
   automatically: branches checked out in another worktree, remote-only
-  branches, ambiguous multi-remote branches, and uncommitted local changes.
+  branches, and uncommitted local changes.
   Use when the user types /checkout-branch <branch>, or asks to
   "check out <branch>", "switch to <branch>", or "move to <branch>".
 allowed-tools:
@@ -63,13 +63,7 @@ git fetch --all --prune
 git checkout <BRANCH>
 ```
 
-If it still fails because multiple remotes have the branch, check out with an explicit remote (prefer `origin`; otherwise ask the user):
-
-```bash
-git checkout --track <remote>/<BRANCH>
-```
-
-If the branch exists nowhere after fetching, report that and stop — do not create a new branch unless the user asks.
+If the branch exists nowhere after fetching, report that and stop — do not create a new branch unless the user asks. Surface any other checkout error as-is.
 
 **Already on the branch** — Git says so; just confirm to the user and stop.
 
