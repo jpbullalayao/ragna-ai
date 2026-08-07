@@ -102,6 +102,16 @@ npx skills add jpbullalayao/ragna-ai --skill pull-latest-default-branch
 
 
 
+### `/checkout-branch <branch>`
+
+Checks out a git branch on the local checkout, handling every edge case automatically: branches held by another worktree, remote-only branches, and uncommitted local changes. Attempts the checkout immediately and remediates only on failure — releasing worktrees, auto-stashing and restoring changes, or fetching once when the branch isn't known locally — so the common case is a single local git command. Use when you want to "check out", "switch to", or "move to" a branch.
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill checkout-branch
+```
+
+
+
 ### `/npm-increment [<version>]`
 
 Analyzes changes since the last package version, recommends a semver bump (patch/minor/major), and runs `npm version` after user confirmation. Supports explicit target versions (e.g. `/npm-increment 2.0.0`) and re-prompts when you decline the recommendation (different bump, custom version, or cancel). Use when you want to "bump the version", "increment package version", or "release a new version".
