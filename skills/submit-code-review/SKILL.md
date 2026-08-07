@@ -2,21 +2,13 @@
 name: submit-code-review
 description: >-
   Post the code review findings already present in the current conversation as
-  GitHub PR comments on the current branch's pull request. Use AFTER a code
-  review has been run in the conversation, when the user types
-  /submit-code-review or asks to "submit the review", "post the comments to
-  GitHub", or "push the review to the PR".
-  Does NOT re-analyze the diff — it reads findings already present in the
-  conversation. Optionally filters by a user-provided focus area. Prioritizes
-  inline PR review comments (attached to the specific file and line) where
-  a file:line citation exists; falls back to regular PR conversation comments
-  when no citation is available. All inline comments are submitted together as
-  a single PR review, never one review per finding. Each comment starts
-  with "_Comment from Claude Code agent · [Model]_" in italics (where [Model]
-  is the short name of the Claude model currently running, e.g. "Sonnet 4.6",
-  "Opus 4.7", "Haiku 4.5"), two blank lines, then "non-blocking" (default) or
-  "blocking" (only when the user explicitly says so), then the finding on a new
-  line. Requires `gh` CLI authenticated to GitHub.
+  GitHub PR comments on the current branch's pull request — it never
+  re-analyzes the diff. Use when the user types /submit-code-review or asks to
+  "submit the review", "post the comments to GitHub", or "push the review to
+  the PR". Optionally filters by a user-provided focus area. Prioritizes inline
+  PR review comments where a file:line citation exists, batched as a single PR
+  review; falls back to regular PR conversation comments otherwise. Requires
+  `gh` CLI authenticated to GitHub.
 allowed-tools:
   - "Bash(gh *)"
   - "Write"
