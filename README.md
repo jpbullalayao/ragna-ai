@@ -14,7 +14,7 @@ npx skills add jpbullalayao/ragna-ai --skill self-code-review
 
 ### `/submit-code-review`
 
-Posts the findings from `/self-code-review` as GitHub PR comments via the `gh` CLI. Inline comments are preferred (attached to the specific file and line); falls back to regular PR conversation comments. Run `/self-code-review` first, then `/submit-code-review`.
+Posts the code-review findings already present in the current conversation as GitHub PR comments via the `gh` CLI. Inline comments are preferred (attached to the specific file and line); falls back to regular PR conversation comments. Run a code review first, then `/submit-code-review`.
 
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill submit-code-review

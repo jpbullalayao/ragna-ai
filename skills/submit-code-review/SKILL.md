@@ -1,10 +1,11 @@
 ---
 name: submit-code-review
 description: >-
-  Post the findings from the current conversation's /self-code-review output as
-  GitHub PR comments on the current branch's pull request. Use AFTER running
-  /self-code-review, when the user types /submit-code-review or asks to "submit
-  the review", "post the comments to GitHub", or "push the review to the PR".
+  Post the code-review findings already present in the current conversation as
+  GitHub PR comments on the current branch's pull request. Use AFTER a code
+  review has been run in the conversation, when the user types
+  /submit-code-review or asks to "submit the review", "post the comments to
+  GitHub", or "push the review to the PR".
   Does NOT re-analyze the diff — it reads findings already present in the
   conversation. Optionally filters by a user-provided focus area. Prioritizes
   inline PR review comments (attached to the specific file and line) where
@@ -23,21 +24,18 @@ allowed-tools:
 
 # Submit Code Review
 
-Takes the findings already produced by `/self-code-review` in the current
-conversation and posts them on the current branch's GitHub pull request via
-the `gh` CLI. **Inline comments are preferred** — findings with a `file:line`
-citation are posted directly on the relevant line; everything else falls back
-to a regular PR conversation comment.
+Takes the code-review findings already present in the current conversation and
+posts them on the current branch's GitHub pull request via the `gh` CLI.
+**Inline comments are preferred** — findings with a `file:line` citation are
+posted directly on the relevant line; everything else falls back to a regular
+PR conversation comment.
 
 **All inline comments ship as one review.** They are batched into a single
-`POST /pulls/{n}/reviews` call. Posting them one at a time via
-`POST /pulls/{n}/comments` creates a *standalone* review comment, and GitHub
-wraps each standalone comment in its own single-comment review — five findings
-become five reviews cluttering the PR timeline. Never use that endpoint here.
+`POST /pulls/{n}/reviews` call.
 
-**Never re-analyzes the diff.** This skill is the second step in a two-step flow:
-1. `/self-code-review` — analyzes the diff, outputs findings in the conversation
-2. `/submit-code-review` — posts those findings as GitHub PR comments
+**Never re-analyzes the diff.** This skill only posts findings; it assumes a
+code review has already been run earlier in the conversation and its findings
+are in context.
 
 ## Workflow
 
@@ -55,27 +53,20 @@ Store:
 
 ### Step 2: Read findings from the conversation
 
-Look back through the current conversation for output from `/self-code-review`.
-That output contains findings grouped under these categories:
-
-- **Bugs Introduced**
-- **Functionality Regressions**
-- **Hook Usage**
-- **Duplication / Reuse Opportunities**
-- **Stale Code**
-- **Other Notes**
-
-Extract each individual bullet-point finding as a separate item to post.
+Look back through the current conversation for the most recent code-review
+output. Findings may be grouped under categories (bugs, regressions,
+duplication, stale code, etc.) or listed flat — extract each individual finding
+as a separate item to post.
 
 If `FOCUS` is set, filter to only findings relevant to that area and skip the rest.
 
-If no `/self-code-review` output is found in the conversation, stop immediately and
+If no code-review findings are found in the conversation, stop immediately and
 tell the user:
 
-> "No /self-code-review output found in this conversation. Run /self-code-review
-> first, then re-run /submit-code-review."
+> "No code-review findings found in this conversation. Run a code review first,
+> then re-run /submit-code-review."
 
-If every finding is "None spotted.", tell the user there is nothing to post and stop.
+If the review reported no issues, tell the user there is nothing to post and stop.
 
 ### Step 3: Gather PR metadata
 
@@ -109,8 +100,8 @@ backtick-wrapped path followed by a colon and a line number, such as:
 - **Has citation → inline candidate.** Extract `PATH` and `LINE`.
 - **No citation → regular comment.** Post to the PR conversation.
 
-Findings from **Other Notes** (high-level observations without a specific location)
-almost never have citations — treat them as regular comments.
+High-level observations without a specific location almost never have
+citations — treat them as regular comments.
 
 **Then validate every inline candidate against the diff.** GitHub rejects the
 *entire* batched review with a 422 if even one comment targets a line outside the
@@ -292,7 +283,7 @@ Session token is stored in `localStorage`. Consider `httpOnly` cookies to reduce
 XSS exposure.
 ```
 
-**Regular conversation comment** (no specific line, e.g. Other Notes):
+**Regular conversation comment** (no specific line):
 ```markdown
 _Comment from Claude Code agent · [Model]_
 
