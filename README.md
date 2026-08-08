@@ -152,6 +152,16 @@ npx skills add jpbullalayao/ragna-ai --skill recall
 
 
 
+### `/blank <request>`
+
+Handles a request from a fresh conversational slate without using prior turns, session summaries, remembered preferences, or other chat sessions. It still follows system instructions and may inspect current files or external sources required by the standalone request. Use when you want an answer that is not framed by earlier conversation context.
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill blank
+```
+
+
+
 ### `/update-skills`
 
 Updates globally installed agent skills from the ragna-ai repo. Runs `npx skills add jpbullalayao/ragna-ai` from the home directory to refresh all skills at once. Use when you want to "update skills", "refresh skills", "sync skills", or pull the latest skill definitions.
