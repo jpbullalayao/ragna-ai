@@ -1,6 +1,8 @@
 # ragna-ai
 
-Personal agent skills for my developer & other personal workflows. Each skill is individually installable via the [skills.sh](https://skills.sh) CLI.
+Personal agent & agent skills for my developer & other personal workflows. Each skill is individually installable via the [skills.sh](https://skills.sh) CLI.
+
+This repository also contains **[ragna-research](./ragna-research/)**, the [Vercel Eve](https://eve.dev) project for **Ragna AI**. Deploy and configure it from the `ragna-research/` directory; see [ragna-research/README.md](./ragna-research/README.md).
 
 ## Skills
 
