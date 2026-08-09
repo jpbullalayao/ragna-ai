@@ -1,6 +1,6 @@
-# ragna-research
+# research-agent
 
-Eve project for **Ragna AI**, a durable backend agent. This directory is the **Vercel deploy root** (run `eve link` and `eve deploy` from here). The package/project name is `ragna-research`; the agent’s identity is **Ragna AI**.
+Eve project for **Ragna AI**, a durable backend agent. This directory is the **Vercel deploy root** (run `eve link` and `eve deploy` from here). The package/project name is `research-agent`; the agent’s identity is **Ragna AI**.
 
 Add skills under `agent/skills/`, schedules under `agent/schedules/`, tools under `agent/tools/`, and extensions under `agent/extensions/` as you expand capabilities.
 
@@ -13,7 +13,7 @@ Add skills under `agent/skills/`, schedules under `agent/schedules/`, tools unde
 ## Local development
 
 ```bash
-cd ragna-research
+cd research-agent
 cp .env.example .env.local
 # Edit .env.local — gateway credentials
 npm install
