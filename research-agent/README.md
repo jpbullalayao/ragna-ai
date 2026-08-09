@@ -2,13 +2,27 @@
 
 Eve project for **Ragna AI**, a durable backend agent. This directory is the **Vercel deploy root** (run `eve link` and `eve deploy` from here). The package/project name is `research-agent`; the agent’s identity is **Ragna AI**.
 
-Add skills under `agent/skills/`, schedules under `agent/schedules/`, tools under `agent/tools/`, and extensions under `agent/extensions/` as you expand capabilities.
+Add skills under `agent/skills/`, schedules under `agent/schedules/`, tools under `agent/tools/`, connections under `agent/connections/`, and extensions under `agent/extensions/` as you expand capabilities.
 
 ## Prerequisites
 
 - Node.js 24.x
 - [Vercel CLI](https://vercel.com/docs/cli) for linking and deploy (`npm i -g vercel`)
 - AI Gateway: `AI_GATEWAY_API_KEY` or Vercel OIDC (`VERCEL_OIDC_TOKEN` via `vercel env pull`)
+- **Notion** (optional until you need publish): Vercel Connect Notion client for `agent/connections/notion.ts`
+
+## Notion connection
+
+This agent uses Eve’s registry Notion connection (MCP), not a hand-rolled Notion HTTP client:
+
+```bash
+cd research-agent
+npm exec -- eve add connection/notion --skip-install
+```
+
+`agent/connections/notion.ts` is **app-scoped** (`principalType: "app"`) so schedules and cron can call Notion without an interactive user session. Share the destination Notion pages/databases with the connected integration.
+
+Confirm discovery with `npm exec -- eve info` (look for the `notion` connection and its tools).
 
 ## Local development
 
