@@ -5,9 +5,9 @@ import { defineMcpClientConnection } from "eve/connections";
  * Official Eve Notion connection (MCP via Vercel Connect).
  * App-scoped so schedules/cron can publish without an interactive user principal.
  *
- * Setup: from research-agent/, run `eve add connection/notion --skip-install`
- * (or `vercel connect create notion`) and share the target Notion pages with the
- * connected integration.
+ * Setup (from research-agent/):
+ *   npm exec -- eve add connection/notion --skip-install
+ * Then share the target Notion pages with the connected integration.
  */
 export default defineMcpClientConnection({
   url: "https://mcp.notion.com/mcp",

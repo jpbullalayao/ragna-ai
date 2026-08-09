@@ -17,9 +17,7 @@ This agent uses Eve’s registry Notion connection (MCP), not a hand-rolled Noti
 
 ```bash
 cd research-agent
-# Install/configure Connect for the Notion MCP (interactive):
 npm exec -- eve add connection/notion --skip-install
-# Or: vercel connect create notion
 ```
 
 `agent/connections/notion.ts` is **app-scoped** (`principalType: "app"`) so schedules and cron can call Notion without an interactive user session. Share the destination Notion pages/databases with the connected integration.
