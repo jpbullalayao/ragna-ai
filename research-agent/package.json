@@ -16,6 +16,7 @@
   "dependencies": {
     "@agent-browser/eve": "^0.33.2",
     "@vercel/connect": "0.4.3",
+    "@vercel/flags-core": "^1.7.1",
     "ai": "^7.0.38",
     "eve": "0.30.8",
     "zod": "4.4.3"
