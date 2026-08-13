@@ -15,9 +15,7 @@ Answer the query after `/no-code` without writing or applying any code.
 
 1. Provide your answer as prose. Do not create, edit, or delete any files, and
    do not apply any code changes.
-2. Reading files, searching the codebase, and running read-only commands to
-   inform your answer is fine.
-3. If the answer would naturally involve a fix or implementation, describe the
+2. If the answer would naturally involve a fix or implementation, describe the
    approach instead of implementing it.
 
 If no query follows `/no-code`, respond:
