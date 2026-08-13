@@ -164,6 +164,16 @@ npx skills add jpbullalayao/ragna-ai --skill blank
 
 
 
+### `/no-code <query>`
+
+Answers your query with an explanation only — no files are created, edited, or deleted, and no code changes are applied. Illustrative code snippets in the answer are fine; if the answer would naturally involve a fix or implementation, it describes the approach instead of implementing it. The query can come before or after the marker (e.g. "explain how X works /no-code"). Use when you want an assessment or explanation without the agent touching the codebase.
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill no-code
+```
+
+
+
 ### `/update-skills`
 
 Updates globally installed agent skills from the ragna-ai repo. Runs `npx skills add jpbullalayao/ragna-ai` from the home directory to refresh all skills at once. Use when you want to "update skills", "refresh skills", "sync skills", or pull the latest skill definitions.
