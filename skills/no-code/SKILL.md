@@ -2,8 +2,8 @@
 name: no-code
 description: >-
   Answer the user's query with an explanation only — do not write, edit, or
-  apply any code changes. Use when the user invokes /no-code <query>, or asks
-  for an answer without code changes.
+  apply any code changes. Use only when the user explicitly invokes
+  /no-code <query>.
 disable-model-invocation: true
 ---
 
