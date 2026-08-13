@@ -2,13 +2,16 @@
 name: no-code
 description: >-
   Answer the user's query with an explanation only — do not apply any code
-  changes. Use only when the user explicitly invokes /no-code <query>.
+  changes. Use only when the user explicitly includes /no-code in their
+  message, before or after the query.
 disable-model-invocation: true
 ---
 
 # No Code
 
-Answer the query after `/no-code` without applying any code changes.
+Answer the user's query without applying any code changes. The query is the
+rest of the message around `/no-code` — it may come before or after the
+marker (e.g. "<query> /no-code" or "/no-code <query>").
 
 ## Rules
 
@@ -17,7 +20,7 @@ Answer the query after `/no-code` without applying any code changes.
 2. If the answer would naturally involve a fix or implementation, describe the
    approach instead of implementing it.
 
-If no query follows `/no-code`, respond:
+If the message contains no query besides `/no-code` itself, respond:
 
 ```text
 Usage: /no-code <query>
