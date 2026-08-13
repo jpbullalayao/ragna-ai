@@ -9,9 +9,7 @@ disable-model-invocation: true
 
 # No Code
 
-Answer the user's query without applying any code changes. The query is the
-rest of the message around `/no-code` — it may come before or after the
-marker (e.g. "<query> /no-code" or "/no-code <query>").
+Answer the user's query without applying any code changes.
 
 ## Rules
 
