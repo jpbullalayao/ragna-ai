@@ -7,30 +7,19 @@ Add skills under `agent/skills/`, schedules under `agent/schedules/`, tools unde
 ## Prerequisites
 
 - Node.js 24.x
-- [Vercel CLI](https://vercel.com/docs/cli) for linking and deploy (`npm i -g vercel`)
-- AI Gateway: `AI_GATEWAY_API_KEY` or Vercel OIDC (`VERCEL_OIDC_TOKEN` via `vercel env pull`)
-- **Notion** (optional until you need publish): Vercel Connect Notion client for `agent/connections/notion.ts`
-
-## Notion connection
-
-This agent uses Eve’s registry Notion connection (MCP), not a hand-rolled Notion HTTP client:
-
-```bash
-cd research-agent
-npm exec -- eve add connection/notion --skip-install
-```
-
-`agent/connections/notion.ts` is **app-scoped** (`principalType: "app"`) so schedules and cron can call Notion without an interactive user session. Share the destination Notion pages/databases with the connected integration.
-
-Confirm discovery with `npm exec -- eve info` (look for the `notion` connection and its tools).
+- [Vercel CLI](https://vercel.com/docs/cli) logged in (`npm i -g vercel`, then `vercel login`)
+- A Vercel project linked from **this** directory (`research-agent/`)
+- AI Gateway: `AI_GATEWAY_API_KEY` or Vercel OIDC from `vercel env pull`
+- Notion workspace access (only if the agent should read or write Notion pages)
 
 ## Local development
 
 ```bash
 cd research-agent
-cp .env.example .env.local
-# Edit .env.local — gateway credentials; optional NOTION_PARENT_PAGE_ID for schedules
 npm install
+vercel link
+vercel env pull .env.local
+# Optional: set AI_GATEWAY_API_KEY in .env.local if OIDC alone is not enough
 npm run dev
 ```
 
@@ -47,6 +36,78 @@ curl -X POST http://localhost:2000/eve/v1/dev/schedules/daily_investment_researc
 ```
 
 Browser tools use Eve’s **default sandbox**. Reddit browsing is allowlisted in `agent/extensions/browser.ts`.
+
+## Notion connection
+
+Notion access uses **Vercel Connect** with Notion’s MCP server (`https://mcp.notion.com/mcp`). The connection file is `agent/connections/notion.ts` and authenticates with:
+
+```ts
+auth: connect("notion/notion");
+```
+
+That string is the connector **UID** (`<service>/<name>`). Creating a connector with `--name notion` yields UID `notion/notion`. Use that UID in CLI commands and keep it in sync with `notion.ts`.
+
+Authorization is **user-scoped**: each developer signs in to Notion once for their Vercel user. Run Connect and Eve commands from the linked `research-agent/` directory so the CLI can mint a Vercel user OIDC token for that session.
+
+### 1. Create and attach the connector
+
+```bash
+cd research-agent
+vercel link
+
+vercel connect create notion --connection-method mcp --name notion
+vercel connect attach notion/notion
+vercel env pull .env.local
+```
+
+`create` may already attach the linked project; `attach` is safe to run either way. Confirm with:
+
+```bash
+vercel connect list
+# Expect UID notion/notion on this project
+```
+
+### 2. Authorize Notion
+
+```bash
+vercel connect token notion/notion --yes
+```
+
+Complete the browser OAuth flow when prompted.
+
+### 3. Share destination pages
+
+OAuth alone does not grant page access. In Notion:
+
+1. Open the parent page or database the agent should use.
+2. **⋯ → Connections** → add the integration from this Connect setup.
+3. Optional: set that page’s UUID in `.env.local` as `NOTION_PARENT_PAGE_ID`.
+
+### 4. Smoke test
+
+```bash
+npm run dev
+```
+
+In the TUI:
+
+```text
+Using Notion connection tools, create a page under parent <PAGE_ID>
+titled "Hello world" with body "Hello world". Reply with the page URL.
+```
+
+Or without the TUI:
+
+```bash
+npm exec -- eve invoke "Using Notion connection tools, create a page under parent <PAGE_ID> titled 'Hello world' with body 'Hello world'. Reply with the page URL."
+```
+
+Useful checks:
+
+```bash
+npm exec -- eve info          # connection notion / notion__* tools
+vercel connect open notion/notion
+```
 
 ## Scripts
 
