@@ -1,3 +1,11 @@
 import browser from "@agent-browser/eve";
 
-export default browser({});
+export default browser({
+  allowedDomains: [
+    "reddit.com",
+    "*.reddit.com",
+    "old.reddit.com",
+    "safereddit.com",
+    "*.safereddit.com",
+  ],
+});

@@ -29,6 +29,14 @@ Inspect discovered capabilities:
 npm exec -- eve info
 ```
 
+Trigger the daily investment schedule once (dev only). Run **one** trigger at a time while the previous session finishes; overlapping runs can stall the local workflow queue.
+
+```bash
+curl -X POST http://localhost:2000/eve/v1/dev/schedules/daily_investment_research
+```
+
+Browser tools use Eve’s **default sandbox**. Reddit browsing is allowlisted in `agent/extensions/browser.ts`.
+
 ## Notion connection
 
 Notion access uses **Vercel Connect** with Notion’s MCP server (`https://mcp.notion.com/mcp`). The connection file is `agent/connections/notion.ts` and authenticates with:
@@ -109,6 +117,13 @@ vercel connect open notion/notion
 | `npm run build` | Production build |
 | `npm run deploy` | Deploy to Vercel production via `eve deploy` |
 | `npm run typecheck` | TypeScript check |
+
+## Architecture
+
+- **Connection** — `agent/connections/notion.ts` (Eve registry Notion MCP via Vercel Connect)
+- **Schedules** — `agent/schedules/*` kick off runs; workflow lives in matching skills
+- **Skill** — `agent/skills/daily_investment_research/` (Reddit stock pulse for casual investors)
+- **Research** — `agent/extensions/browser.ts` (agent-browser, Reddit allowlist)
 
 ## Repo context
 
