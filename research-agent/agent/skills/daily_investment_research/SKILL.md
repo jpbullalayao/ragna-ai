@@ -19,22 +19,18 @@ Visit each via browser. Prefer **today’s** (or last ~24h) hot/top/discussion t
 | **r/ValueInvesting** | Fundamental theses | Top DD posts mentioning tickers |
 | **r/dividends** | Income / yield names | What dividend investors are buying or worried about |
 
-Skip or lightly skim: r/pennystocks, r/Superstonk, meme-only threads unless they spill into the core subs above.
-
 ## Research steps
 
 1. Note **today’s date** (UTC or US Pacific — be consistent in the note).
 2. For each subreddit above, open `https://www.reddit.com/r/{name}/` (or `.json` / old.reddit if easier). Capture **thread title, URL, upvote/comment signal if visible**, and the **investment reason** people give (catalyst, earnings, macro, meme, short squeeze narrative, etc.).
 3. **Merge by ticker**: one entry per symbol that appeared in multiple places; dedupe spam.
-4. **Score substance** (1–5): 1 = pure hype/meme; 5 = cites filings, numbers, or concrete catalysts. Call out WSB-heavy names explicitly.
-5. Do **not** invent tickers or narratives. If a sub is quiet, say so.
-6. Draft the note using the **Output format** below (markdown).
-7. Publish **once** to Notion via the Eve **Notion connection** (not a custom tool):
+4. Do **not** invent tickers or narratives.
+5. Draft the note using the **Output format** below (markdown).
+6. Publish **once** to Notion via the Eve **Notion connection** (not a custom tool):
    - Use `connection_search` if needed to find Notion create/update tools (`notion__*`).
    - Prefer creating a child page under `NOTION_PARENT_PAGE_ID` from the schedule/session when provided.
-   - Page title: `Reddit investment pulse — {YYYY-MM-DD}` (or include that as the leading `#` heading in markdown content).
+   - Page title: `Reddit investment summary - {YYYY-MM-DD}` (or include that as the leading `#` heading in markdown content).
    - Body: the full markdown below (tables/lists should be real markdown so Notion MCP can render them).
-   - Optionally tag or mention in the page body: `investing`, `reddit`, `daily-pulse`, plus top 3–5 tickers.
 
 If browser access fails for a sub, document which failed and continue with the rest.
 
@@ -43,7 +39,7 @@ If browser access fails for a sub, document which failed and continue with the r
 Use this structure exactly so daily notes compare across time:
 
 ```markdown
-# Reddit investment pulse — {date}
+# Reddit investment summary - {YYYY-MM-DD}
 
 ## At a glance
 
@@ -51,9 +47,9 @@ Use this structure exactly so daily notes compare across time:
 
 ## Tickers table
 
-| Ticker | Buzz | Subreddits | Why people are talking | Sentiment | Substance (1–5) | Casual take |
-| --- | --- | --- | --- | --- | --- | --- |
-| EXAMPLE | High | r/stocks, r/wsb | … | Mixed | 2 | Watchlist only — hype heavy |
+| Ticker | Buzz | Subreddits | Why people are talking | Sentiment | Casual take |
+| --- | --- | --- | --- | --- | --- |
+| EXAMPLE | High | r/stocks, r/wsb | … | Mixed | Watchlist only — hype heavy |
 
 **Buzz**: High / Medium / Low (relative to today’s scan).  
 **Sentiment**: Bullish / Bearish / Mixed / Unclear.  
@@ -61,7 +57,7 @@ Use this structure exactly so daily notes compare across time:
 
 ## Ticker deep dives
 
-Repeat this block only for **High** buzz or **substance ≥ 3** tickers (cap at 8 to keep the note readable):
+Repeat this block only for **High** buzz tickers (cap at 8 to keep the note readable):
 
 ### {TICKER}
 
