@@ -14,9 +14,10 @@ Visit each via browser. Prefer **today’s** (or last ~24h) hot/top/discussion t
 | **r/investing** | Core — broader market, portfolios, fundamentals | Daily thread, advice threads with ticker mentions |
 | **r/StockMarket** | Market-wide news and index/sector mood | Front page + daily discussion |
 | **r/wallstreetbets** | Sentiment & momentum (noisy) | What’s trending; **always** label hype vs substance |
+| **r/TheRaceTo10Million** | Growth / portfolio-building names | High-upvote tickers and “how I’m getting there” theses |
+| **r/stockstobuytoday** | Near-term buy ideas | What’s being pitched today; label hype vs catalyst |
 | **r/ValueInvesting** | Fundamental theses | Top DD posts mentioning tickers |
 | **r/dividends** | Income / yield names | What dividend investors are buying or worried about |
-| **r/SecurityAnalysis** | Higher-quality DD (optional if time) | 1–2 top posts only — extract tickers and thesis summary |
 
 Skip or lightly skim: r/pennystocks, r/Superstonk, meme-only threads unless they spill into the core subs above.
 
@@ -87,13 +88,16 @@ Repeat this block only for **High** buzz or **substance ≥ 3** tickers (cap at 
 ### r/wallstreetbets
 …
 
+### r/TheRaceTo10Million
+…
+
+### r/stockstobuytoday
+…
+
 ### r/ValueInvesting
 …
 
 ### r/dividends
-…
-
-### r/SecurityAnalysis
 …
 
 ## What didn’t matter today
