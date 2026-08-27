@@ -3,7 +3,8 @@ name: trim-comments
 description: >-
   Relentlessly remove or rewrite low-value comments in code: comments that
   merely restate the name of the variable, method, prop, class, or file they
-  annotate, and comments that reference removed or superseded functionality
+  annotate, comments that narrate what the code is logically doing when the
+  code already shows it plainly, and comments that reference removed or superseded functionality
   from earlier iterations of the feature (change-history narration like
   "previously", "used to", "no longer", "changed from"), and comments that
   are needlessly verbose — condensing them to the shortest wording that
@@ -59,7 +60,7 @@ If the fetch fails, fall back to the local `<base-branch>`. If the diff is empty
 
 Read each in-scope file (for diff scope, focus on comments added or touched by the diff, plus comments immediately adjacent to changed code). Flag every comment — line comments, block comments, JSDoc/docstrings — that matches either category:
 
-**Category 1 — Name restatement.** The comment says nothing beyond what the identifier it annotates already says. Examples:
+**Category 1 — Code restatement.** The comment says nothing beyond what the code it annotates already says — either restating the name of the identifier, or narrating the control flow or operations the code plainly shows. Examples:
 
 ```ts
 // The user's email
@@ -70,9 +71,17 @@ const fetchInvoices = async () => ...
 
 // onClick handler
 onClick: ...
+
+// Loop over the users
+for (const user of users) { ... }
+
+// Return early if the list is empty
+if (items.length === 0) return;
 ```
 
 Fix: **delete** the comment. If a doc comment mixes restatement with genuinely non-obvious information (constraints, units, edge cases, side effects), keep only the informative part.
+
+**Exception:** keep a narration comment when the syntax it explains is genuinely unclear or confusing — a dense regex, bit manipulation, an unusual or misleading API — where a reader can't tell what the code does at a glance. `// Match an ISO 8601 date` above a hairy regex stays; `// loop over the users` above a `for...of` does not.
 
 **Category 2 — Iteration remnants.** The comment references decisions, behavior, or code that existed in an earlier iteration of the feature but was changed or removed. Signals: "previously", "used to", "no longer", "changed from", "instead of the old", "was doing X, now does Y", "legacy", references to functions/params/branches that don't exist in the current code, or explanations framed as a contrast against something the reader can no longer see. Verify a referenced symbol is truly gone with the Grep tool before flagging.
 
@@ -108,7 +117,7 @@ Related fixes in the same spirit:
 - **Drop caller-instruction docs on private helpers whose callers already comply.** A doc block on a non-exported function instructing how it must be called (e.g. "callers must resolve X before entering the lock") can be deleted when every existing caller complies and the structure/types enforce it.
 - **Doc summaries must not restate adjacent declarations.** Delete phrases in a type/function doc that repeat what the signature or fields immediately below already say (e.g. "with its draft-access rule already resolved" directly above a `hasOrgDraftAccess: boolean` field).
 
-**Never touch:** comments stating non-obvious constraints, rationale, or gotchas the code can't express; license headers; directive comments (`eslint-disable`, `@ts-expect-error`, `prettier-ignore`, `TODO`/`FIXME` with real content); doc comments whose content goes beyond the name.
+**Never touch:** comments stating non-obvious constraints, rationale, or gotchas the code can't express; comments decoding genuinely confusing syntax (dense regexes, bit tricks, unusual APIs); license headers; directive comments (`eslint-disable`, `@ts-expect-error`, `prettier-ignore`, `TODO`/`FIXME` with real content); doc comments whose content goes beyond the name.
 
 ### Step 3: Present findings and apply
 
@@ -117,6 +126,7 @@ List every finding before editing:
 ```
 ### Comment Trim Findings
 - `path/to/file.ts:12` — [RESTATES] "// the user's email" → delete
+- `path/to/file.ts:30` — [RESTATES] "// loop over the users" → delete
 - `path/to/file.ts:48` — [REMNANT] "// no longer uses polling, now websockets" → rewrite: "// Pushes updates over the websocket connection"
 - `path/to/file.ts:73` — [VERBOSE] "// Note that we need to debounce here in order to avoid firing a request on every keystroke" → rewrite: "// Debounced to avoid a request per keystroke"
 - `path/to/file.ts:91` — [RATIONALE] "// Deny rather than grant: an outage should never let someone in" → rewrite: "// Deny rather than grant."
