@@ -84,6 +84,16 @@ npx skills add jpbullalayao/ragna-ai --skill html-walkthrough
 
 
 
+### `/code-review-walkthrough [<PR#>|<branch>]`
+
+Runs Claude's native `/code-review` on the current branch (or a given PR/branch), then invokes `/html-walkthrough` to publish a visual walkthrough of the change framed as a Before and After: the problem the pull request set out to solve, how the flow worked before, how it works after, what changed and why, and the review findings. Use when you want to "review and walk me through this PR" or "code review with a walkthrough".
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill code-review-walkthrough
+```
+
+
+
 ### `/post-merge-cleanup`
 
 Syncs the default branch and deletes the merged working branch after a PR merge. Checks out main, pulls latest, deletes the local branch (with confirmation for force-delete on squash/rebase merges), deletes the remote branch if still present (with confirmation), and prunes stale remote-tracking refs. Use after merging a PR when you want to "clean up my branch", "pull main and delete this branch", or "post-merge cleanup".
