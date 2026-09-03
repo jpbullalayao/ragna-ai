@@ -44,6 +44,16 @@ npx skills add jpbullalayao/ragna-ai --skill submit-pull-request
 
 
 
+### `/update-pr-context [<branch>|<PR#>]`
+
+Reviews every commit and the full diff of the current branch's PR (or a given branch/PR number), compares them against the PR's existing title and description, and rewrites only the content that has gone stale — outdated behavior claims, missing or reverted changes, and test plan steps that no longer apply. Accurate text is left untouched. Requires the `gh` CLI.
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill update-pr-context
+```
+
+
+
 ### `/code-cleanup [<branch>]`
 
 Analyzes the current branch's diff against its base branch — a specified branch via `/code-cleanup <branch>`, else the open PR's base branch, else the repo's default branch — and auto-applies cleanup fixes across three areas: code brevity & quality, regression risks, and CI/build health. For large diffs, invokes `/simplify` first; for React files, invokes `/react-doctor` before applying fixes. Each finding is classified as `[AUTO]` (applied immediately), `[ARCH]` (architectural improvement — shown as before/after, then applied), or `[MANUAL]` (surfaced for human review, not touched). Runs type checks and build verification after each pass.
@@ -225,7 +235,7 @@ npx skills add jpbullalayao/ragna-ai
 ## Requirements
 
 - `gh` CLI authenticated to GitHub (`gh auth login`):
-  - Required for `/submit-code-review`, `/submit-pull-request`, and `/address-pr-comments` (post PR comments / open PRs / fetch reviews and push fixes)
+  - Required for `/submit-code-review`, `/submit-pull-request`, `/address-pr-comments`, and `/update-pr-context` (post PR comments / open PRs / fetch reviews and push fixes / edit PR titles and bodies)
   - Optional for `/self-code-review` and `/code-cleanup` (detect the open PR's base branch — degrade gracefully to the repo's default branch if unavailable)
 - Claude Code with MCP Linear server connected:
   - Required for `/create-ticket` (used to create issues)
