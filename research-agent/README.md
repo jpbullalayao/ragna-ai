@@ -10,6 +10,7 @@ Add skills under `agent/skills/`, schedules under `agent/schedules/`, tools unde
 - [Vercel CLI](https://vercel.com/docs/cli) logged in (`npm i -g vercel`, then `vercel login`)
 - A Vercel project linked from **this** directory (`research-agent/`)
 - AI Gateway: `AI_GATEWAY_API_KEY` or Vercel OIDC from `vercel env pull`
+- [Browser Use](https://browser-use.com) API key (`BROWSER_USE_API_KEY`) for cloud browsing
 - Notion workspace access (only if the agent should read or write Notion pages)
 
 ## Local development
@@ -35,7 +36,26 @@ Trigger the daily investment schedule once (dev only). Run **one** trigger at a 
 curl -X POST http://localhost:2000/eve/v1/dev/schedules/daily_investment_research
 ```
 
-Browser tools use Eve’s **default sandbox**. Reddit browsing is allowlisted in `agent/extensions/browser.ts`.
+## Browser Use (cloud browser)
+
+Live web browsing uses [`@browser_use/eve`](https://www.npmjs.com/package/@browser_use/eve). The scaffold is:
+
+- `agent/sandbox/sandbox.ts` — installs `browser-harness-js` in the sandbox
+- `agent/skills/browser-use.ts` — CDP workflow for the model
+- `agent/tools/open_cloud_browser.ts` / `stop_cloud_browser.ts` — provision and tear down a cloud browser
+
+Add your [Browser Use](https://browser-use.com) API key locally and to the linked Vercel project:
+
+```bash
+# .env.local (see .env.example)
+BROWSER_USE_API_KEY=bu_...
+
+vercel env add BROWSER_USE_API_KEY
+```
+
+The API key stays in the app runtime. The agent receives only a scoped WebSocket URL, drives the browser with CDP, and should call `stop_cloud_browser` when finished. Ask it to “open example.com and tell me the title” as a smoke test.
+
+Sandbox browser automation via `@agent-browser/eve` remains mounted in `agent/extensions/browser.ts` with a Reddit allowlist.
 
 ## Notion connection
 
@@ -123,7 +143,7 @@ vercel connect open notion/notion
 - **Connection** — `agent/connections/notion.ts` (Eve registry Notion MCP via Vercel Connect)
 - **Schedules** — `agent/schedules/*` kick off runs; workflow lives in matching skills
 - **Skill** — `agent/skills/daily_investment_research/` (Reddit stock pulse for casual investors)
-- **Research** — `agent/extensions/browser.ts` (agent-browser, Reddit allowlist)
+- **Research** — Browser Use cloud browser (`open_cloud_browser` / `stop_cloud_browser`) plus `agent/extensions/browser.ts` (agent-browser, Reddit allowlist)
 
 ## Repo context
 
