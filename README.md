@@ -14,6 +14,14 @@ Reviews the current branch's diff against its base branch — the open PR's base
 npx skills add jpbullalayao/ragna-ai --skill self-code-review
 ```
 
+### `/check-for-regressions`
+
+Analyzes the current branch's diff against its base branch — the open PR's base branch when the branch has one, otherwise the repository's GitHub default branch — and reports potential feature or logical regressions with evidence and suggested fixes. Read-only and static-only: inspects code and cross-file impacts without applying changes or running project checks. Use before merging or when asked to "check for regressions" or "did this break anything".
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill check-for-regressions
+```
+
 ### `/submit-code-review`
 
 Posts the code review findings already present in the current conversation as GitHub PR comments via the `gh` CLI. Inline comments are preferred (attached to the specific file and line); falls back to regular PR conversation comments. Run a code review first, then `/submit-code-review`.
