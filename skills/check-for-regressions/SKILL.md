@@ -14,10 +14,6 @@ description: >-
 
 Analyzes the current branch diff for **feature and logical regressions** — changes that break behavior that worked before this branch. **Read-only and static-only**: inspect code, callers, tests, docs, and history with whatever tools the host agent has; never edit files, never auto-fix, and never run project tests, type checks, builds, or other verification commands.
 
-Invocation: `/check-for-regressions` — optional base branch via `/check-for-regressions <branch>` when the user names one explicitly.
-
-This skill is **harness-agnostic**. It describes what to analyze and how to report it, not a fixed toolchain.
-
 ## Workflow
 
 ### Step 1: Establish the diff baseline
@@ -26,7 +22,7 @@ Identify the current branch and resolve the base branch to compare against — c
 
 1. **Explicit argument.** If the user passed a branch name, use it as `BASE_REF`.
 2. **Open PR base.** If the current branch has an open pull request, use that PR's base branch.
-3. **Repository default branch.** Otherwise use the repository's GitHub default branch. Do not assume a hard-coded branch name such as `main`.
+3. **Repository default branch.** Otherwise use the repository's GitHub default branch.
 
 If the baseline cannot be determined, stop and tell the user what is missing.
 
@@ -76,7 +72,7 @@ The patterns below are common regression signals, not an exhaustive list. Flag a
 
 #### Logic and control-flow changes
 
-- Narrowed conditionals (e.g. `if (a || b)` → `if (a)`) without corresponding caller updates
+- Narrowed conditionals without corresponding caller updates
 - Removed `if`/`switch` branches, early returns, or error paths that callers relied on
 - Changed ordering, timing, debouncing, caching, or async sequencing
 - Swallowed errors, changed retry/backoff, or altered validation that previously rejected bad input
@@ -149,15 +145,11 @@ Use this structure. Keep it concise; every finding must cite `file:line` when a 
 - **medium** — breaks a subset of cases or depends on assumptions that may not hold
 - **low** — edge case or needs runtime confirmation
 
-After reporting, stop. Do not implement fixes. The user may chain `/submit-code-review` with focus `"only regressions"` if findings should be posted to GitHub.
-
 ## Constraints
 
 - **Read-only.** Never create, edit, or delete files in the working tree. Never commit, push, stash, checkout, or otherwise mutate repo state.
 - **Static-only.** Never run tests, type checks, builds, linters, or other project verification commands — even when discoverable from package scripts.
 - **Report, don't fix.** Describe potential fixes only; never apply them.
-- **Harness-agnostic.** Use whatever read/search/diff capabilities exist in the host agent. Do not require or assume specific CLIs, MCP servers, or shell commands.
-- **No hard-coded default branch.** Resolve the baseline from the open PR or the repository's GitHub default branch; never guess `main`/`master` when the real default is unknown.
 - **Be specific.** Every finding cites `file:line` where possible and states the failing scenario.
 - **Don't restate the diff.** Assume the reader can read it; add judgment about behavioral risk.
 - **Balance.** Some behavior changes are intentional. Flag impact and caller risk without treating every API change as a bug.
