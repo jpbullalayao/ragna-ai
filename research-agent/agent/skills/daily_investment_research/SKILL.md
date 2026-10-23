@@ -6,7 +6,7 @@ Use this skill for scheduled or on-demand **daily investment pulse** runs. Goal:
 
 ## Subreddits to cover (in order)
 
-Visit each via browser. Prefer **today’s** (or last ~24h) hot/top/discussion threads; read enough posts and comments to infer themes, not just headlines.
+Visit each via the Browser Use cloud browser. Load the `browser-use` skill, call `open_cloud_browser` once at the start, drive pages with `browser-harness-js` as that skill directs, and call `stop_cloud_browser` when finished. If the cloud browser is unavailable, fall back to agent-browser tools. Prefer **today’s** (or last ~24h) hot/top/discussion threads; read enough posts and comments to infer themes, not just headlines.
 
 | Subreddit | Role | How to read it |
 | --- | --- | --- |
