@@ -48,6 +48,25 @@ Never open a PR from `main` (or the repo's default branch). If the user is on th
 
 7. **Return the PR URL** so the user can open it and paste in the Before/After media.
 
+8. **Attach screenshots when asked or when the change is UI-visible.** If the user asked for screenshots (or the diff changes React components, pages, layouts, or styles and a dev server is available), follow [Screenshots](#screenshots) to capture Before/After media and embed it in the PR body. Skip silently for non-visual changes.
+
+## Screenshots
+
+Automates the Before/After sections for UI-visible changes. This step is best-effort: any failure (no dev server, capture error, upload rejected) falls back to leaving the sections blank and telling the user where the local files are — never block PR creation on it.
+
+### Capture
+
+Use the project's browser-verification skill (`verify` / `agent-browser`) or the Playwright MCP tools directly (`browser_navigate` + `browser_take_screenshot`) against the local dev server. Drive the app to the state the PR changes and capture:
+
+- **After** — on the PR branch. Always capture this one.
+- **Before** — only when cheap to obtain: the base branch is already deployed/running elsewhere, or the user explicitly asks. Do NOT switch branches or stash a dirty tree just to capture a Before; leave that section blank instead.
+
+Save captures under the session scratchpad as `<pr-number>-before.png` / `<pr-number>-after.png`.
+
+### Attach
+
+Invoke the `attach-media-to-pr` skill with the captured file(s), the PR number, and the target section ("Before" / "After"). It hosts the media via the GitHub Contents API and embeds SHA-pinned `?raw=true` URLs that render inline even on private repos — no worktrees or local git state involved. Do not hand-roll the upload here; the mechanics (branch bootstrap, Camo constraints, overwrite handling) live in that skill.
+
 ## The template
 
 Every PR body produced by this skill MUST follow this exact structure, in this order:
@@ -83,7 +102,7 @@ Every PR body produced by this skill MUST follow this exact structure, in this o
 - **Ticket** — links the PR to the work item so reviewers and future readers can find the original context.
 - **Problem** — forces the author to articulate the user-visible or system-level issue, not just the code change.
 - **Solution** — gives reviewers a one-paragraph mental model before they start reading the diff.
-- **Before / After** — empty by design. The skill cannot capture screenshots or recordings; the author fills these in after the PR is opened. Keep the HTML comment so the author sees a hint when editing.
+- **Before / After** — filled automatically for UI-visible changes when a dev server is available (see [Screenshots](#screenshots)); otherwise left empty for the author to paste media in after the PR is opened. Keep the HTML comment so the author sees a hint when editing.
 - **Test plan** — concrete steps a reviewer (or the author) can run to verify the change. Bullets should be checkable, not vague ("works correctly" is not a test plan).
 
 ## Filling Problem / Solution / Test plan well
