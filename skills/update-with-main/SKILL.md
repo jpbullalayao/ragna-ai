@@ -59,13 +59,15 @@ Call the chosen checkout `<WT>` from here on. It must be clean (`git -C <WT> sta
 
 ### 3. Sync with the branch's own remote
 
-If `<BRANCH>` has an upstream, bring the local branch level with it first so the later push is not rejected:
+If `<BRANCH>` has an upstream, bring in any commits that exist only on the remote first, so the later push is not rejected:
 
 ```bash
-git -C <WT> merge --ff-only @{u}
+git -C <WT> merge --ff --no-edit @{u}
 ```
 
-This fast-forwards when the branch is behind and does nothing when it is level or ahead. If it fails because the branches have diverged, report it and stop; reconciling local and remote history is the user's call.
+- Behind → fast-forwards (`--ff` overrides a `merge.ff=false` config, so no needless merge commit is created).
+- Level or ahead → `Already up to date.`; nothing changes.
+- Diverged → creates a merge commit combining the local and remote commits. If it conflicts, resolve them as described in step 5, then continue to step 4.
 
 ### 4. Merge
 
@@ -73,13 +75,13 @@ This fast-forwards when the branch is behind and does nothing when it is level o
 git -C <WT> merge --no-edit origin/<DEFAULT>
 ```
 
-- `Already up to date.` — the branch already contains the latest default branch; report that and stop.
+- `Already up to date.` — the branch already contains the latest default branch. If step 3 created a merge commit, go to step 6 to push it; otherwise report that and stop.
 - Clean merge — Git creates the merge commit; skip to step 6.
 - Conflicts — go to step 5.
 
 ### 5. Resolve conflicts
 
-**Use the harness's conflict-resolution skill.** Check the skills available in the current session for one dedicated to resolving merge conflicts. If one exists, invoke it, passing the conflicted files from the merge output and stating that the conflicts come from merging `origin/<DEFAULT>` into `<BRANCH>`. Follow that skill's process in full, including any plan-approval step it requires — do not resolve the conflicts yourself first.
+**Use the harness's conflict-resolution skill.** Check the skills available in the current session for one dedicated to resolving merge conflicts. If one exists, invoke it, passing the conflicted files from the merge output and stating which merge produced them (`origin/<BRANCH>` or `origin/<DEFAULT>` into `<BRANCH>`). Follow that skill's process in full, including any plan-approval step it requires — do not resolve the conflicts yourself first.
 
 **Only if no such skill exists**, resolve the conflicts directly.
 
@@ -105,6 +107,7 @@ Never force-push. If the push is rejected, report the error and stop.
 Return a short summary:
 
 - Branch updated, the worktree path it was merged in, and the default branch merged (`origin/<DEFAULT>` with its SHA)
+- Whether remote commits on `<BRANCH>` were brought in first (fast-forward or merge commit)
 - Result: already up to date, clean merge, or merged with conflicts (list the files and the skill used to resolve them)
 - New HEAD SHA and whether it was pushed
-- Anything left for the user (dirty tree, diverged branch, unresolved conflicts, rejected push)
+- Anything left for the user (dirty tree, unresolved conflicts, rejected push)
