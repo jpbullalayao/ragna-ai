@@ -58,9 +58,9 @@ git worktree list --porcelain
 ```
 
 - **Checked out in a worktree** (including the current one) — run every command below in that worktree with `git -C <path>`.
-- **Not checked out anywhere** — check it out in the current checkout: invoke `/checkout-branch <BRANCH>` if that skill is available, otherwise `git checkout <BRANCH>`. Call this checkout `<WT>` from here on.
+- **Not checked out anywhere** — use the current checkout. Confirm it is clean (see below), then run `git checkout <BRANCH>`; Git creates a local tracking branch automatically when the branch exists only on `origin`.
 
-The working tree must be clean (`git -C <WT> status --porcelain` empty). If it is not, report the dirty files and stop — never stash or discard someone's changes to make room for a merge.
+Call the chosen checkout `<WT>` from here on. It must be clean (`git -C <WT> status --porcelain` empty) before any checkout or merge. If it is not, report the dirty files and stop — never stash or discard someone's changes to make room for a merge.
 
 ### 3. Sync with the branch's own remote
 
@@ -98,7 +98,7 @@ List the conflicted files:
 git -C <WT> diff --name-only --diff-filter=U
 ```
 
-**Use the harness's conflict-resolution skill.** Check the available skills list for one dedicated to resolving merge conflicts (e.g. `resolve-conflicts`). If one exists, invoke it via the Skill tool, passing the conflicted file list and stating that the conflicts come from merging `origin/<DEFAULT>` into `<BRANCH>`. Follow that skill's process in full, including any plan-approval step it requires — do not resolve the conflicts yourself first.
+**Use the harness's conflict-resolution skill.** Check the skills available in the current session for one dedicated to resolving merge conflicts. If one exists, invoke it, passing the conflicted file list and stating that the conflicts come from merging `origin/<DEFAULT>` into `<BRANCH>`. Follow that skill's process in full, including any plan-approval step it requires — do not resolve the conflicts yourself first.
 
 **Only if no such skill exists**, resolve conflicts directly:
 
