@@ -101,7 +101,6 @@ Never force-push. If the push is rejected, report the error and stop.
 Return a short summary:
 
 - Branch updated, the worktree path it was merged in, and the default branch merged (`origin/<DEFAULT>` with its SHA)
-- Whether remote commits on `<BRANCH>` were brought in first (fast-forward or merge commit)
 - Result: already up to date, clean merge, or merged with conflicts (list the files and how they were resolved)
 - New HEAD SHA and whether it was pushed
 - Anything left for the user (uncommitted changes Git refused to overwrite, unresolved conflicts, rejected push)
