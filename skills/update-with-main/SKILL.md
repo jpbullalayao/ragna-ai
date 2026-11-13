@@ -51,7 +51,7 @@ git worktree list --porcelain
 
 Call the chosen checkout `<WT>` and run every command below with `git -C <WT>`.
 
-Uncommitted changes do not block anything: Git carries them through a checkout or merge that does not touch those files. If Git refuses because a checkout or merge would overwrite uncommitted changes, report the files it names and stop — never stash or discard the user's changes.
+If Git refuses because a checkout or merge would overwrite uncommitted changes, report the files it names and stop — never stash or discard the user's changes.
 
 ### 3. Bring in remote commits on the branch
 
