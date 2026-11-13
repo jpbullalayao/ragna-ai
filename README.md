@@ -142,6 +142,16 @@ npx skills add jpbullalayao/ragna-ai --skill checkout-branch
 
 
 
+### `/update-with-main [<branch>]`
+
+Merges the latest remote default branch (main, master, etc.) into a branch — the given one, or the current branch — with a merge commit, then pushes it. Fetches first so it always merges `origin/<default>`, runs the merge in whichever worktree already holds the branch, and stops instead of stashing when that tree is dirty or the branch has diverged from its remote. Merge conflicts go to the harness's conflict-resolution skill (e.g. `/resolve-conflicts`) when one is installed, with a careful manual fallback otherwise. Never force-pushes or aborts a merge without asking. Use when you want to "update my branch with main" or "merge main into <branch>".
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill update-with-main
+```
+
+
+
 ### `/npm-increment [<version>]`
 
 Analyzes changes since the last package version, recommends a semver bump (patch/minor/major), and runs `npm version` after user confirmation. Supports explicit target versions (e.g. `/npm-increment 2.0.0`) and re-prompts when you decline the recommendation (different bump, custom version, or cancel). Use when you want to "bump the version", "increment package version", or "release a new version".
