@@ -16,8 +16,6 @@ allowed-tools:
   - "Bash(git add *)"
   - "Bash(git commit *)"
   - "Bash(git push *)"
-  - "Bash(git rev-parse *)"
-  - "Bash(git rev-list *)"
   - "Bash(git diff *)"
   - "Bash(git worktree *)"
   - "Bash(git symbolic-ref *)"
@@ -40,13 +38,11 @@ Merge the latest `origin/<DEFAULT>` into the target branch with a merge commit (
 git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || gh repo view --json defaultBranchRef -q .defaultBranchRef.name
 ```
 
-`DEFAULT` is the result with any `origin/` prefix stripped; fall back to `main` if unresolved. Then fetch both sides so the merge uses the remote's latest state, not a stale local ref:
+`DEFAULT` is the result with any `origin/` prefix stripped; fall back to `main` if unresolved. Then fetch so the merge uses the remote's latest state, not a stale local ref:
 
 ```bash
-git fetch origin <DEFAULT> <BRANCH>
+git fetch origin
 ```
-
-If `<BRANCH>` does not exist on `origin` (never pushed), fetch only `<DEFAULT>`. If it exists neither locally nor on `origin`, report that and stop.
 
 ### 2. Pick the working tree
 
@@ -57,7 +53,7 @@ git worktree list --porcelain
 ```
 
 - **Checked out in a worktree** (including the current one) — run every command below in that worktree with `git -C <path>`.
-- **Not checked out anywhere** — use the current checkout. Confirm it is clean (see below), then run `git checkout <BRANCH>`; Git creates a local tracking branch automatically when the branch exists only on `origin`.
+- **Not checked out anywhere** — use the current checkout. Confirm it is clean (see below), then run `git checkout <BRANCH>`; Git creates a local tracking branch automatically when the branch exists only on `origin`. If the checkout fails because the branch exists nowhere, report that and stop.
 
 Call the chosen checkout `<WT>` from here on. It must be clean (`git -C <WT> status --porcelain` empty) before any checkout or merge. If it is not, report the dirty files and stop — never stash or discard someone's changes to make room for a merge.
 
@@ -66,12 +62,10 @@ Call the chosen checkout `<WT>` from here on. It must be clean (`git -C <WT> sta
 If `<BRANCH>` has an upstream, bring the local branch level with it first so the later push is not rejected:
 
 ```bash
-git -C <WT> rev-list --left-right --count <BRANCH>...@{u}
+git -C <WT> merge --ff-only @{u}
 ```
 
-- Behind only → `git -C <WT> merge --ff-only @{u}`.
-- Ahead only or level → continue.
-- Diverged (both counts non-zero) → report it and stop; reconciling local and remote history is the user's call.
+This fast-forwards when the branch is behind and does nothing when it is level or ahead. If it fails because the branches have diverged, report it and stop; reconciling local and remote history is the user's call.
 
 ### 4. Merge
 
@@ -85,32 +79,23 @@ git -C <WT> merge --no-edit origin/<DEFAULT>
 
 ### 5. Resolve conflicts
 
-List the conflicted files:
-
-```bash
-git -C <WT> diff --name-only --diff-filter=U
-```
-
-**Use the harness's conflict-resolution skill.** Check the skills available in the current session for one dedicated to resolving merge conflicts. If one exists, invoke it, passing the conflicted file list and stating that the conflicts come from merging `origin/<DEFAULT>` into `<BRANCH>`. Follow that skill's process in full, including any plan-approval step it requires — do not resolve the conflicts yourself first.
+**Use the harness's conflict-resolution skill.** Check the skills available in the current session for one dedicated to resolving merge conflicts. If one exists, invoke it, passing the conflicted files from the merge output and stating that the conflicts come from merging `origin/<DEFAULT>` into `<BRANCH>`. Follow that skill's process in full, including any plan-approval step it requires — do not resolve the conflicts yourself first.
 
 **Only if no such skill exists**, resolve the conflicts directly.
 
-Either way, before committing confirm that nothing is left unresolved:
+Either way, stage the resolved files, confirm no conflict markers were left behind, then finish the merge:
 
 ```bash
-git -C <WT> diff --name-only --diff-filter=U   # must be empty
-git -C <WT> diff --check                        # must report no conflict markers
+git -C <WT> diff --cached --check   # must report no conflict markers
+git -C <WT> commit --no-edit        # Git refuses while any file is still unmerged
 ```
-
-Then stage the resolved files and finish the merge with `git -C <WT> commit --no-edit`.
 
 If the conflicts cannot be resolved with confidence, leave the merge in progress, report the remaining files, and ask the user how to proceed. Never run `git merge --abort` without the user's approval, since it throws away resolution work.
 
 ### 6. Push
 
 ```bash
-git -C <WT> push               # branch already has an upstream
-git -C <WT> push -u origin <BRANCH>   # no upstream yet
+git -C <WT> push -u origin <BRANCH>
 ```
 
 Never force-push. If the push is rejected, report the error and stop.
