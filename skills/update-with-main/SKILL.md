@@ -86,7 +86,7 @@ git -C <WT> diff --cached --check   # must report no conflict markers
 git -C <WT> commit --no-edit        # Git refuses while any file is still unmerged
 ```
 
-If the conflicts cannot be resolved with confidence, leave the merge in progress, report the remaining files, and ask the user how to proceed. Never run `git merge --abort` without the user's approval, since it throws away resolution work.
+Never run `git merge --abort` without the user's approval, since it throws away resolution work.
 
 ### 6. Push
 
