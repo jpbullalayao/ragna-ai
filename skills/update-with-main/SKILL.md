@@ -16,7 +16,6 @@ allowed-tools:
   - "Bash(git add *)"
   - "Bash(git commit *)"
   - "Bash(git push *)"
-  - "Bash(git merge-base *)"
   - "Bash(git rev-parse *)"
   - "Bash(git rev-list *)"
   - "Bash(git diff *)"
@@ -74,23 +73,17 @@ git -C <WT> rev-list --left-right --count <BRANCH>...@{u}
 - Ahead only or level → continue.
 - Diverged (both counts non-zero) → report it and stop; reconciling local and remote history is the user's call.
 
-### 4. Check whether a merge is needed
-
-```bash
-git -C <WT> merge-base --is-ancestor origin/<DEFAULT> <BRANCH>
-```
-
-Exit code `0` means the branch already contains the latest default branch — report "already up to date" and stop.
-
-### 5. Merge
+### 4. Merge
 
 ```bash
 git -C <WT> merge --no-edit origin/<DEFAULT>
 ```
 
-A clean merge creates the merge commit; skip to step 7. If Git reports conflicts, go to step 6.
+- `Already up to date.` — the branch already contains the latest default branch; report that and stop.
+- Clean merge — Git creates the merge commit; skip to step 6.
+- Conflicts — go to step 5.
 
-### 6. Resolve conflicts
+### 5. Resolve conflicts
 
 List the conflicted files:
 
@@ -113,7 +106,7 @@ Then stage the resolved files and finish the merge with `git -C <WT> commit --no
 
 If the conflicts cannot be resolved with confidence, leave the merge in progress, report the remaining files, and ask the user how to proceed. Never run `git merge --abort` without the user's approval, since it throws away resolution work.
 
-### 7. Push
+### 6. Push
 
 ```bash
 git -C <WT> push               # branch already has an upstream
@@ -122,7 +115,7 @@ git -C <WT> push -u origin <BRANCH>   # no upstream yet
 
 Never force-push. If the push is rejected, report the error and stop.
 
-### 8. Report
+### 7. Report
 
 Return a short summary:
 
