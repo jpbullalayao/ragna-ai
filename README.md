@@ -144,7 +144,7 @@ npx skills add jpbullalayao/ragna-ai --skill checkout-branch
 
 ### `/update-with-main [<branch>]`
 
-Merges the latest remote default branch (main, master, etc.) into a branch — the given one, or the current branch — with a merge commit, then pushes it. Fetches first so it always merges `origin/<default>`, runs the merge in whichever worktree already holds the branch, and stops instead of stashing when that tree is dirty or the branch has diverged from its remote. Merge conflicts go to the harness's conflict-resolution skill when one is available, with a careful manual fallback otherwise. Never force-pushes or aborts a merge without asking. Use when you want to "update my branch with main" or "merge main into <branch>".
+Merges the latest remote default branch (main, master, etc.) into a branch — the given one, or the current branch — with a merge commit, then pushes it. Fetches first so it always merges `origin/<default>`, runs the merge in whichever worktree already holds the branch, and stops instead of stashing when that tree is dirty or the branch has diverged from its remote. Merge conflicts go to the harness's conflict-resolution skill when one is available; otherwise the agent resolves them directly. Never force-pushes or aborts a merge without asking. Use when you want to "update my branch with main" or "merge main into <branch>".
 
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill update-with-main

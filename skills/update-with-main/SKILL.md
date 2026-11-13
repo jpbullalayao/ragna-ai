@@ -100,11 +100,7 @@ git -C <WT> diff --name-only --diff-filter=U
 
 **Use the harness's conflict-resolution skill.** Check the skills available in the current session for one dedicated to resolving merge conflicts. If one exists, invoke it, passing the conflicted file list and stating that the conflicts come from merging `origin/<DEFAULT>` into `<BRANCH>`. Follow that skill's process in full, including any plan-approval step it requires — do not resolve the conflicts yourself first.
 
-**Only if no such skill exists**, resolve conflicts directly:
-
-- Read both sides of each hunk and preserve the intent of both changes; keep both when they do not contradict (imports, tests, config entries).
-- Regenerate lock files and other generated files with the project's tooling rather than hand-merging them.
-- When the right resolution is unclear, show the user the options and ask.
+**Only if no such skill exists**, resolve the conflicts directly.
 
 Either way, before committing confirm that nothing is left unresolved:
 
