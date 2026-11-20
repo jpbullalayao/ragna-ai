@@ -182,6 +182,16 @@ npx skills add jpbullalayao/ragna-ai --skill root-cause
 
 
 
+### `/map-it-out <query>`
+
+Maps out, end to end, how a piece of functionality works today: entry points, execution flow, data flow, state reads and writes, side effects, branches (flags, config, permissions), and failure paths. It finds every path that reaches the functionality, follows indirection to the code that actually runs (dependency injection, middleware, events, dynamic dispatch), then checks the draft map against the code and tests. Each claim is labeled Verified (with `file:line`), Inferred, or Unknown. The output is a summary, a Mermaid flow diagram, a step-by-step trace, and sections for state, configuration, failure modes, gotchas, and open questions. Read-only. Use when you or an agent need to understand a feature deeply and accurately before changing, debugging, or explaining it.
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill map-it-out
+```
+
+
+
 ### `/recall <query>`
 
 Recalls prior agent-session context about a topic so follow-up work can continue in the current session without hunting for the original chat. Searches local transcripts across Cursor, Claude Code, Codex, and Gemini, ranks the most relevant sessions, and synthesizes an inline context briefing with summary, key decisions, files touched, current state, and next steps. Use when you want to "recall" a topic, ask "what did we do about", or "continue where we left off".
