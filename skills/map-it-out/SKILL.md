@@ -4,7 +4,7 @@ description: >-
   Map out, end to end, how a piece of functionality actually works today —
   its entry points, execution flow, data flow, state changes, side effects,
   branches, and failure paths — grounded in the real code with file:line
-  citations and a flow diagram. Read-only. Use when the user invokes
+  citations and a flow diagram. Use when the user invokes
   /map-it-out <query>, asks to "map out", "trace", or "show me the flow of"
   something, or when an agent must understand a feature deeply and
   accurately before changing, debugging, or explaining it.
@@ -15,8 +15,6 @@ description: >-
 Builds an accurate, verified map of how the functionality in `<query>` works right now, so the reader (a human or another agent) can reason about it without re-reading the code.
 
 Invocation: `/map-it-out <query>` — the text after the command is what to map (a feature, flow, endpoint, job, bug path, or question such as "what happens when a user resets their password"). If no query is given, ask for one before doing anything else.
-
-This skill is **read-only**. Do not create, edit, or delete files, and do not run commands with side effects (migrations, deploys, writes to shared services). Running existing tests or read-only commands to confirm behavior is fine.
 
 ## Step 1: Frame the query
 
@@ -81,7 +79,7 @@ Treat the draft map as a hypothesis and try to break it.
 - **Check for dead or shadowed code** — code that looks relevant but is unreachable, behind a flag that is off by default, deprecated, or overridden elsewhere. Say so on the map rather than silently dropping or including it.
 - **Cross-check against tests** — tests show intended behavior and edge cases. Where tests and code disagree, the code is what runs; note the discrepancy.
 - **Code wins over docs and comments** — when docs, comments, or names contradict the code, map the code's behavior and note the contradiction.
-- **Confirm at runtime when it is cheap and safe** — e.g. run an existing relevant test. Never run anything with side effects to confirm a map.
+- **Confirm at runtime when it is cheap** — e.g. run an existing relevant test.
 
 Label every claim on the map as one of:
 
@@ -113,7 +111,6 @@ Write for a reader who has never seen this code: plain language, concrete names,
 
 ## Constraints
 
-- **Read-only.** Mapping never changes the codebase or any shared system.
 - **Ground everything.** Every file, function, and behavior on the map must come from the actual repo. Never invent a path, name, or line number.
 - **Accuracy over completeness.** A smaller map that is correct beats a larger one with guesses. When something is uncertain, label it instead of smoothing it over.
 - **Describe current behavior, not intended behavior.** Do not propose fixes or redesigns unless the user asks; note suspected bugs briefly under Gotchas.
