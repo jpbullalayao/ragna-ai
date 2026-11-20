@@ -58,10 +58,14 @@ Never write or modify implementation code under any mode — only the plan file 
 
 Before designing a solution, build an accurate picture of how the project — or the feature the query touches — works *right now*. Planning against a wrong mental model is the most common source of bad plans.
 
-- **Run `/map-it-out`.** Invoke it via the Skill tool (or the host's equivalent) and follow its process in full. Scope its query to what the change touches: the feature or flow for a feature-level change, the major components for a project-wide one. Name the parts the change is expected to touch as the map's focus, so they come back highlighted in its diagram.
-- **If `/map-it-out` is not available,** do the same work inline: find every entry point, trace the flow through the code that actually runs, verify it against the code and tests, and draw a grounded current-state diagram with the change points highlighted. Mention that it can be installed with `npx skills add jpbullalayao/ragna-ai --skill map-it-out`.
-- **Always required,** even for small changes — scale the map to the change, not its existence.
-- **Carry the map into the plan.** Its diagram, with the change points highlighted, becomes the plan's **Current state** section (Step 7). Any Inferred or Unknown items that affect the design must be resolved before designing, or listed under **Risks / tradeoffs** if they can't be.
+- **Run `/map-it-out`.** Invoke it via the Skill tool (or the host's equivalent) and follow its process in full. Scope its query to what the change touches: the feature or flow for a feature-level change, the major components for a project-wide one. Name the parts the change is expected to touch as the map's focus, so they get extra depth.
+- **If `/map-it-out` is not available,** do the same work inline: find every entry point, trace the flow through the code that actually runs, and verify each step against the code. Mention that it can be installed with `npx skills add jpbullalayao/ragna-ai --skill map-it-out`.
+- **Draw the current-state diagram from the map.** This diagram is required, even for small changes — scale its size to the change, not its existence. It becomes the plan's **Current state** section (Step 7).
+  - Pick the form that fits the shape of the system: a Mermaid `flowchart` for components and data flow, `sequenceDiagram` for request/response or multi-system handshakes, `stateDiagram` for lifecycles. Fall back to a clean ASCII diagram if Mermaid is unsuitable for the host.
+  - Label nodes with real file paths or function names, and edges with what actually passes between them (call, event, query, payload). Nothing in the diagram may be invented.
+  - Mark the change points: highlight the nodes and edges the change will touch (e.g. a `classDef` style or a `(changes)` label) so the reader sees where the solution lands.
+  - Leave out anything the change won't touch or depend on.
+- **Resolve open questions first.** Any Inferred or Unknown items from the map that affect the design must be resolved before designing, or listed under **Risks / tradeoffs** if they can't be.
 
 ## Step 4: Apply the staff+ engineering lens
 
