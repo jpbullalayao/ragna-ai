@@ -42,7 +42,7 @@ Search broadly before reading deeply. Missing an entry point is the most common 
 
 Follow the actual execution from each entry point to the outcome. Read implementations, not just signatures or names.
 
-For each hop, capture:
+Break the flow into steps: each function or block of code it passes through, in the order they run. For each step, capture:
 
 - **Where** — `file_path:line` of the function or block.
 - **What it does** — one line, in terms of behavior, not restating the function name.
@@ -52,7 +52,7 @@ For each hop, capture:
 - **Branches** — conditions that change the path: feature flags, config and env vars, permissions/roles, user or account type, input validation, early returns.
 - **Failure paths** — what is thrown or returned on error, where it is caught, retries, fallbacks, and what the caller ultimately sees.
 
-Resolve indirection instead of guessing across it. When the next hop is hidden behind any of the following, find the concrete target:
+When the code that runs next is hidden behind any of the following, find the code that actually runs instead of guessing:
 
 - dependency injection, service locators, factories, or registries
 - interfaces or abstract classes with multiple implementations (identify which one runs, and when)
@@ -67,13 +67,13 @@ Depth rules:
 - Go as deep as the query needs. Stop at third-party libraries and generic utilities **unless** the behavior the query cares about depends on them — then describe the relevant library behavior. Confirm it from the library's source or current docs rather than memory, and say which you used (or that you could not confirm it).
 - Do not stop at the first match that looks right. Keep going until the outcome from Step 1 is reached on every path.
 
-For a large surface, you may delegate breadth searches (e.g. "find every subscriber to event X") to subagents, but read the critical path yourself. Do not trust a summary for the hops the map depends on most.
+For a large surface, you may delegate breadth searches (e.g. "find every subscriber to event X") to subagents, but read the critical path yourself. Do not trust a summary for the steps the map depends on most.
 
 ## Step 4: Verify the map
 
 Treat the draft map as a hypothesis and try to break it.
 
-- **Re-check each hop** — does the cited line actually do what the map says? Re-open any hop you described from memory or from a name alone.
+- **Re-check each step** — does the cited line actually do what the map says? Re-open any step you described from memory or from a name alone.
 - **Draft the diagram now and use it to find gaps** — if there is a node or edge you cannot explain from the code you read, go back to Step 3 and trace it before continuing.
 - **Look for what you missed** — other callers of the core functions, other implementations of the interfaces, other subscribers to the events, other code that writes the same state.
 - **Check for dead or shadowed code** — code that looks relevant but is unreachable, behind a flag that is off by default, deprecated, or overridden elsewhere. Say so on the map rather than silently dropping or including it.
@@ -96,10 +96,10 @@ Use this structure, dropping any section that would be empty:
 1. **Summary** — 2–4 sentences: what the functionality does, what triggers it, and what it produces.
 2. **Flow diagram** — Mermaid, in the form that fits the shape of what you mapped: `flowchart` for branching logic or how components connect, `sequenceDiagram` for request/response flows between several actors or systems, `stateDiagram` for lifecycles. Use a clean ASCII diagram instead if Mermaid won't render where the map is going.
    - Label nodes with the real functions, files, or components, and edges with what actually passes between them (a call, event, query, or payload).
-   - Mark branches, async hops, and external systems.
+   - Mark branches, asynchronous calls (work that runs in the background or is not awaited), and external systems.
    - Highlight the focus areas from Step 1, if any (e.g. with a `classDef` style).
-   - Keep it readable: collapse trivial hops, and split it into several diagrams if one would exceed ~20 nodes.
-3. **Step-by-step trace** — numbered hops in execution order, each with `file_path:line`, what it does, and the data passed on. One list per entry point when paths differ meaningfully.
+   - Keep it readable: combine trivial steps into one, and split it into several diagrams if one would exceed ~20 nodes.
+3. **Step-by-step trace** — numbered steps in the order the code runs, each with `file_path:line`, what it does, and the data passed on. One list per entry point when paths differ meaningfully.
 4. **Data and state** — key types/schemas involved, and every piece of state read or written, by whom.
 5. **Branches and configuration** — flags, env vars, config values, and conditions that change behavior, with their defaults.
 6. **Side effects and external dependencies** — external calls, events, jobs, and what depends on them.
