@@ -26,6 +26,8 @@ Before searching, write down for yourself:
 - **Trigger(s)** — what starts it: an HTTP route, UI event, CLI command, cron/scheduled job, queue consumer, webhook, function call from another module.
 - **Outcome** — what "done" looks like: a response, a persisted record, a rendered UI, a message sent.
 - **Scope edges** — where the map stops (e.g. "up to the database write", "excluding the auth middleware"). Default: from the outermost trigger in this repo to the last observable effect in this repo.
+- **Level** — a feature-level query ("how does checkout work") maps one flow: its entry points, the functions it passes through, its data stores, and the external systems it calls. A project-level query ("how does this service work") maps the major components and how they connect, and leaves out the internals of each.
+- **Focus** — if the query names a specific concern (a change being considered, a bug, a decision point such as "where the price is calculated"), note it. The map must still cover the whole flow, but the focus areas get extra depth and are highlighted in the output.
 
 If the query is ambiguous enough that two different maps are plausible (e.g. "how does sync work" in a repo with three sync systems), ask the user which one before going further. Otherwise state your interpretation and proceed.
 
@@ -64,7 +66,7 @@ Resolve indirection instead of guessing across it. When the next hop is hidden b
 
 Depth rules:
 
-- Go as deep as the query needs. Stop at third-party libraries and generic utilities **unless** the behavior the query cares about depends on them — then describe the relevant library behavior and say whether you confirmed it from source, docs, or neither.
+- Go as deep as the query needs. Stop at third-party libraries and generic utilities **unless** the behavior the query cares about depends on them — then describe the relevant library behavior. Confirm it from the library's source or current docs rather than memory, and say which you used (or that you could not confirm it).
 - Do not stop at the first match that looks right. Keep going until the outcome from Step 1 is reached on every path.
 
 For a large surface, you may delegate breadth searches (e.g. "find every subscriber to event X") to subagents, but read the critical path yourself. Do not trust a summary for the hops the map depends on most.
@@ -74,6 +76,7 @@ For a large surface, you may delegate breadth searches (e.g. "find every subscri
 Treat the draft map as a hypothesis and try to break it.
 
 - **Re-check each hop** — does the cited line actually do what the map says? Re-open any hop you described from memory or from a name alone.
+- **Draft the diagram now and use it to find gaps** — if there is a node or edge you cannot explain from the code you read, go back to Step 3 and trace it before continuing.
 - **Look for what you missed** — other callers of the core functions, other implementations of the interfaces, other subscribers to the events, other code that writes the same state.
 - **Check for dead or shadowed code** — code that looks relevant but is unreachable, behind a flag that is off by default, deprecated, or overridden elsewhere. Say so on the map rather than silently dropping or including it.
 - **Cross-check against tests** — tests show intended behavior and edge cases. Where tests and code disagree, the code is what runs; note the discrepancy.
@@ -93,7 +96,11 @@ Output the map in the conversation so it stays in context for whoever invoked th
 Use this structure, dropping any section that would be empty:
 
 1. **Summary** — 2–4 sentences: what the functionality does, what triggers it, and what it produces.
-2. **Flow diagram** — a Mermaid `flowchart` or `sequenceDiagram` (sequence for multi-actor request/response flows, flowchart for branching logic). Node labels name the real functions or components. Mark branches, async hops, and external systems. Keep it readable: collapse trivial hops and split into several diagrams if one would exceed ~20 nodes.
+2. **Flow diagram** — Mermaid, in the form that fits the shape of what you mapped: `flowchart` for branching logic or how components connect, `sequenceDiagram` for request/response flows between several actors or systems, `stateDiagram` for lifecycles. Use a clean ASCII diagram instead if Mermaid won't render where the map is going.
+   - Label nodes with the real functions, files, or components, and edges with what actually passes between them (a call, event, query, or payload).
+   - Mark branches, async hops, and external systems.
+   - Highlight the focus areas from Step 1, if any (e.g. with a `classDef` style).
+   - Keep it readable: collapse trivial hops, and split it into several diagrams if one would exceed ~20 nodes.
 3. **Step-by-step trace** — numbered hops in execution order, each with `file_path:line`, what it does, and the data passed on. One list per entry point when paths differ meaningfully.
 4. **Data and state** — key types/schemas involved, and every piece of state read or written, by whom.
 5. **Branches and configuration** — flags, env vars, config values, and conditions that change behavior, with their defaults.
