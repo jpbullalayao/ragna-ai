@@ -164,7 +164,7 @@ npx skills add jpbullalayao/ragna-ai --skill npm-increment
 
 ### `/staff-engineer-plan <query>`
 
-Operates alongside Plan Mode in any agent to turn a free-form query into a production-grade implementation plan — one a staff+ engineer would both author and approve in review. Adopts senior engineering philosophy (architecture, elegance, simplification, performance), adversarially stress-tests any approach you proposed and pivots to a clearly better one when warranted (while staying flexible if you insist). Before designing anything, it maps how the relevant project or feature works today in a grounded current-state architecture diagram (Mermaid/ASCII) with the change points marked, and adds a diagram of the proposed solution only when it is genuinely hard to follow in prose. Always plans first (enters Plan Mode where available, else writes a plan file), and produces a plan any other agent or human can execute. Use when you want to "plan this like a staff engineer" or "review my approach and plan it properly".
+Operates alongside Plan Mode in any agent to turn a free-form query into a production-grade implementation plan — one a staff+ engineer would both author and approve in review. Adopts senior engineering philosophy (architecture, elegance, simplification, performance), adversarially stress-tests any approach you proposed and pivots to a clearly better one when warranted (while staying flexible if you insist). Before designing anything, it runs [`/map-it-out`](#map-it-out-query) to map how the relevant project or feature works today, producing a grounded current-state diagram (Mermaid/ASCII) with the change points highlighted, and adds a diagram of the proposed solution only when it is genuinely hard to follow in prose. Always plans first (enters Plan Mode where available, else writes a plan file), and produces a plan any other agent or human can execute. Use when you want to "plan this like a staff engineer" or "review my approach and plan it properly".
 
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill staff-engineer-plan
@@ -178,6 +178,16 @@ Addresses a specific task or bug by tracing to and fixing the true underlying ca
 
 ```bash
 npx skills add jpbullalayao/ragna-ai --skill root-cause
+```
+
+
+
+### `/map-it-out <query>`
+
+Maps out, end to end, how a piece of functionality works today: entry points, execution flow, data flow, state reads and writes, side effects, branches (flags, config, permissions), and failure paths. It finds every path that reaches the functionality, finds the code that actually runs when the next call is hidden (behind dependency injection, middleware, events, or dynamic dispatch), then re-checks the draft map against the code. Each claim is labeled Verified (with `file:line`), Inferred, or Unknown. Queries can name a focus (a change being considered, a bug, a decision point), which gets extra depth. The map is for the agent's own understanding: it isn't shown to you, and the agent only confirms when it's done and names any open questions that matter. Use when you or an agent need to understand a feature deeply and accurately before changing, debugging, or explaining it.
+
+```bash
+npx skills add jpbullalayao/ragna-ai --skill map-it-out
 ```
 
 

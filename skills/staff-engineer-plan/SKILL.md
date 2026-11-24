@@ -6,8 +6,8 @@ description: >-
   and approve in review. Adopts senior engineering philosophy (architecture,
   elegance, simplification, performance), adversarially stress-tests any approach
   the user proposed and pivots to a clearly better one when warranted. Before
-  designing anything, maps how the relevant system works today in a current-state
-  architecture diagram (Mermaid/ASCII), and adds a diagram of the proposed
+  designing anything, maps how the relevant system works today with /map-it-out
+  into a current-state diagram (Mermaid/ASCII), and adds a diagram of the proposed
   solution only when it is genuinely hard to follow in prose. Produces a plan
   any other agent or human can execute. Use when the user invokes
   /staff-engineer-plan, or asks to "plan this like a staff engineer", "give me a
@@ -56,14 +56,16 @@ Never write or modify implementation code under any mode — only the plan file 
 
 ## Step 3: Map how it works today
 
-Before designing a solution, build a picture of how the project — or the feature the query touches — works *right now*. Planning against a wrong mental model is the most common source of bad plans; drawing it forces the gaps into the open.
+Before designing a solution, build an accurate picture of how the project — or the feature the query touches — works *right now*. Planning against a wrong mental model is the most common source of bad plans.
 
-- **Always produce a current-state diagram.** This is required, even for small changes — scale its size to the change, not its existence.
-- **Scope it to what the change touches.** For a feature-level query, map that feature's entry points, the modules/functions it flows through, its data stores, and the external systems it calls. For a project-level query, map the major components and how they connect. Leave out anything the change won't touch or depend on.
-- **Pick the form that fits the shape of the system:** a Mermaid `flowchart` for components and data flow, `sequenceDiagram` for request/response or multi-system handshakes, `stateDiagram` for lifecycles. Fall back to a clean ASCII diagram if Mermaid is unsuitable for the host.
-- **Ground every node.** Label nodes with real file paths or function names from Step 2, and edges with what actually passes between them (call, event, query, payload). Nothing in the diagram may be invented.
-- **Mark the change points.** Highlight the nodes/edges the change will touch (e.g. a `classDef` style or a `(changes)` label) so the reader sees where the solution lands.
-- **Use it to find gaps.** If drawing the diagram reveals something you can't explain from the code, go back to Step 2 and resolve it before designing.
+- **Run `/map-it-out`.** Invoke it via the Skill tool (or the host's equivalent) and follow its process in full. Scope its query to what the change touches: the feature or flow for a feature-level change, the major components for a project-wide one. Name the parts the change is expected to touch as the map's focus, so they get extra depth.
+- **If `/map-it-out` is not available,** do the same work inline: find every entry point, trace the flow through the code that actually runs, and verify each step against the code. Mention that it can be installed with `npx skills add jpbullalayao/ragna-ai --skill map-it-out`.
+- **Draw the current-state diagram from the map.** This diagram is required, even for small changes — scale its size to the change, not its existence. It becomes the plan's **Current state** section (Step 7).
+  - Pick the form that fits the shape of the system: a Mermaid `flowchart` for components and data flow, `sequenceDiagram` for request/response or multi-system handshakes, `stateDiagram` for lifecycles. Fall back to a clean ASCII diagram if Mermaid is unsuitable for the host.
+  - Label nodes with real file paths or function names, and edges with what actually passes between them (call, event, query, payload). Nothing in the diagram may be invented.
+  - Mark the change points: highlight the nodes and edges the change will touch (e.g. a `classDef` style or a `(changes)` label) so the reader sees where the solution lands.
+  - Leave out anything the change won't touch or depend on.
+- **Resolve open questions first.** Any Inferred or Unknown items from the map that affect the design must be resolved before designing, or listed under **Risks / tradeoffs** if they can't be.
 
 ## Step 4: Apply the staff+ engineering lens
 
@@ -120,7 +122,7 @@ Keep it scannable but complete. Then finish per the mode resolved in Step 1.
 - **Always operate in Plan Mode.** Enter it if the harness supports it; fall back to a plan file only when the harness has no plan-mode concept.
 - **Ground everything.** No invented paths, APIs, or behavior — verify against the codebase or authoritative docs.
 - **Be adversarial but flexible.** Pivot to the better approach by default and document the tradeoff; defer to an insistent user while surfacing the risk.
-- **Understand before designing.** Always map the current system in a grounded diagram (Step 3) before proposing a solution.
+- **Understand before designing.** Always map the current system with `/map-it-out` (Step 3) before proposing a solution.
 - **Solution diagrams must earn their place.** No solution diagram unless it makes a genuinely hard solution easier to follow.
 - **Harness-agnostic.** Do not depend on any one harness's exploration/planning subagents or assume a single exit primitive.
 - **Executable by a cold reader.** The plan must stand on its own for any agent or human.
